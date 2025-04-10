@@ -46,7 +46,6 @@ parser = arg_parser("Auto-calibration postprocessor", hide.opts = TRUE)
 
 # by default ArgumentParser will add an help option
 parser = add_argument(parser, "--dir", help = "Input directory path containing basin directories")
-parser = add_argument(parser, "--reportdir", default=NA_character_, help = "Output directory for reports",short='-rd')
 parser = add_argument(parser, "--basins", default=NA_character_, help = "Basins to run", nargs=Inf)
 parser = add_argument(parser, "--run", default=NA_character_, help = "Output directories to postprocess", nargs=Inf)
 args = parse_args(parser)
@@ -57,7 +56,6 @@ args = parse_args(parser)
 
 # all basins are sub dirs under here
 output_dir = args$dir
-report_dir = args$reportdir
 basins = args$basins
 run_dirs = args$run
 
@@ -118,10 +116,6 @@ for(basin in basins){
 
     first_underscore = str_locate(results_dir,'_')[1,'start']
     report_num = substr(results_dir,first_underscore+1,nchar(results_dir))
-
-    reports_path = file.path(report_dir,paste0(reports_dir_prefix,basename(output_dir)))
-    if(!is.na(report_dir))
-      dir.create(reports_path, showWarnings = FALSE, recursive = TRUE)
 
     # html report name
     html_report_name = gsub('Rmd','html',gsub('single-basin',paste0(basin,'_',report_num),report_template)) |>
