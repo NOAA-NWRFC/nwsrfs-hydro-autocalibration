@@ -1,6 +1,6 @@
 # nwrfc-hydro-evolvingDDS
 
-**Description** NWRFC Autocalibration tool of the National Weather Service River Forecast System Models (NWSRFS) using an evolving dynamically dimensioned search (edds). 
+**Description** NWRFC Autocalibration tool of the National Weather Service River Forecast System Models (NWSRFS) using an evolving dynamically dimensioned search (edds). Suite of NWRFS models that can be calibrated simultaneously, with multiple zones, include:  SAC-SMA, SNOW17, lagk, CHANLOSS, and CONS_USE.  NWRFS documentation for more detail about each individual model [link](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) .
 
 Primary Language:   R
 
