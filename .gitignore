@@ -1,3 +1,6 @@
+# runs directory
+runs/*
+
 # R junk
 .Rproj.user
 .Rhistory
