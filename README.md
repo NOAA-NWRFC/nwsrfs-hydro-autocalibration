@@ -1,16 +1,16 @@
-# nwrfc-hydro-evolvingDDS
+# NWRFC Autocalibration Framework
 
 **Description** NWRFC Autocalibration tool of the National Weather Service River Forecast System Models (NWSRFS) using an evolving dynamically dimensioned search (edds). Suite of NWRFS models that can be calibrated simultaneously, with multiple zones, include:  SAC-SMA, SNOW17, lagk, CHANLOSS, and CONS_USE.  NWRFS documentation for more detail about each individual model [link](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) .
 
 Primary Language:   R
 
-Dependencies:  [nwrfc-hydro R package](https://github.com/geoffrey-walters/nwrfc-hydro-models)
+Dependencies:  [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models)
 
 Limitations:  Due to usage of fork implemenation of parallelism, does not work on a windows system
 
 Acknowledgement:  Traditional dynamically dimensioned search (dds) alogorithm developed by building on original code by David Kneis [david.kneis@@tu-dresden.de], [dds.r github](https://github.com/dkneis/mcu/blob/master/R/dds.r)
 
-## Autocalb Steps
+## Autocalb steps
 
 ### Required directory structure
 
@@ -90,4 +90,25 @@ When executing all of the script from the command line, you can use the `--help`
 ./run-controller.R --help
 ```
 The arguments which have a default option are listed.
+
+## Credits and references
+
+Please use the folowing journal article for referencing this work:
+
+Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the Northwest River Forecast Center." Unpublished manuscript, Submitted 2025, JAWA Journal of the American Water Resources Association
+
+If you wish to use or adapt the code in this repository, please make sure that your new repository credits this one as the original source of the code. 
+
+## Legal disclaimer
+
+This repository is a scientific product and is not official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.
+
+[NOAA GitHub Policy](https://github.com/NOAAGov/Information)
+ \
+ \
+ \
+<img src="https://www.weather.gov/bundles/templating/images/header/header.png" alt="NWS-NOAA Banner">
+
+[National Oceanographic and Atmospheric Administration](https://www.noaa.gov) | [National Weather Service](https://www.weather.gov/) | [Northwest River Forecast Center](https://www.nwrfc.noaa.gov/rfc/)
+
 
