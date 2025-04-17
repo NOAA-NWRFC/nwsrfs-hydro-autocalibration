@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Written by Geoffrey Walters and Cameron Bracken (2025)
+# Please see the LICENSE file for license information
+
 xfun::pkg_load2(c('magrittr','dplyr', 'data.table', 'dtplyr','hydroGOF',
                    'lubridate','readr','tibble','ggthemes','stringr',
                    'gtable','gridExtra','knitr','kableExtra','rfchydromodels',
