@@ -11,13 +11,21 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
 
 1. Install [R](http://r-project.org). 
 
-2. Install the `rfchydromodels` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
-    
-        devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='rfchydromodels')
-
-3. Install these R packages: 
+2. Install these R packages: 
 
         install.packages(c('xfun','import','devtools'))
+
+3. Install the `rfchydromodels` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
+    
+From R:
+
+        devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='rfchydromodels')
+
+or from the command line:
+
+        git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-models.git
+        cd nwsrfs-hydro-models
+        R CMD INSTALL rfchydromodels
 
 4. The autocalibration scripts will try to install a number of R packages when run. If this fails you may need to install the packages manually. 
 
@@ -150,9 +158,9 @@ The `run-controller.R` script is run to create a optimized parameter file (`pars
       -o, --objfun      Objective function name [default: nselognse_NULL]
       --optimizer       Optimzer to use {edds [default],pso,dds} [default:
                         edds]
-      -c, --cvfold      CV fold to run (integer 1-4)
+      -c, --cvfold      CV fold to run (integer 1-4) [default: none]
       -n, --num_cores   Number of cores to allocate for run, FULL uses all
-                        availavble cores -2 [default: 8]
+                        availavble cores -2 [default: FULL]
 
 
 **Example:**

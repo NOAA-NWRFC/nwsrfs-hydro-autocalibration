@@ -47,7 +47,7 @@ parser = add_argument(parser, "--basin", help = "Basin name")
 parser = add_argument(parser, "--objfun", default='nselognse_NULL', help = "Objective function name")
 parser = add_argument(parser, "--optimizer", default='edds', help = "Optimzer to use {edds [default],pso,dds}")
 parser = add_argument(parser, "--cvfold", default=NA_integer_, help = "CV fold to run (integer 1-4)")
-parser = add_argument(parser, "--num_cores", default="8", help = "Number of cores to allocate for run, FULL uses all availavble cores -2")
+parser = add_argument(parser, "--num_cores", default="FULL", help = "Number of cores to allocate for run, FULL uses all availavble cores -2")
 parser = add_argument(parser, "--por", flag=TRUE, help = "Do a period of record run [default]")
 parser = add_argument(parser, "--overwrite", flag=TRUE, help = "Don't create new results dir, overwrite",short = '-ov')
 parser = add_argument(parser, "--lite",flag=TRUE, help = "Testing run with 1/2 the total optimizer iteration")
@@ -353,7 +353,7 @@ ptraj = ggplot(p_trace_plot)+
   theme_minimal()+
   theme(legend.position = 'best') +
   scale_color_manual(values=colorRampPalette(colorblind_pal()(8))(length(lower)))
-ptraj
+# ptraj
 ggsave(sprintf('%s/trajectories_best.pdf',plot_path),ptraj,width=10,height=8)
 
 ##########################################################################

@@ -307,9 +307,9 @@ ep_dds <- function(fn, p_bounds, t_iter= 1000, n_cores= 4,r= 0.2, ...) {
   names(f_trace)= names(f_best)
 
   message("                                                                                ")
-  message("===========================================================================================")
-  message("                               Running  DDS-Evolving                      ")
-  message("===========================================================================================")
+  message("===============================================================================================")
+  message("                                     Running optimization                     ")
+  message("===============================================================================================")
   message("* Daily Flow Metrics Displayed                                                   ")
 
   sim=model_wrapper(p= p_best,...,return_flow = TRUE)[-(1:365*4)]
@@ -318,13 +318,13 @@ ep_dds <- function(fn, p_bounds, t_iter= 1000, n_cores= 4,r= 0.2, ...) {
   R2_best = rPearson(sim$sim_flow_cfs,sim$flow_cfs)^2
   kge_best = KGE(sim$sim_flow_cfs,sim$flow_cfs)
 
-  message( "iter:", format(i, width=nchar(t_iter), justify="right"),
-           "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=6, nsmall=3, justify="left"),
-           "  Piter_Len:", format(as.integer(1), width=6, nsmall=2, justify="left"),
-           "  NSE:", format(round(nse_best,2), width=6, nsmall=2, justify="left"),
-           "  Pbias", format(round(pbias_best,2), width=6, nsmall=2, justify="left"), "%",
-           "  R2:", format(round(R2_best,2), width=6, nsmall=2, justify="left"),
-           "  KGE:", format(round(kge_best,2), width=6, nsmall=2, justify="left"))
+  message( "iter:", format(i, width=nchar(t_iter)+1, justify="right"),
+           "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=9, nsmall=3, justify="right"),
+           "  Piter_Len:", format(as.integer(1), width=6, nsmall=2, justify="right"),
+           "  Pbias:", format(round(pbias_best,2), width=8, nsmall=2, justify="right"), "%",
+           "  R2:", format(round(R2_best,2), width=6, nsmall=2, justify="right"),
+           "  NSE:", format(round(nse_best,2), width=6, nsmall=2, justify="right"),
+           "  KGE:", format(round(kge_best,2), width=6, nsmall=2, justify="right"))
   
   # Initialize a list to store seeds for each iteration
   worker_seeds_list = list()
@@ -403,13 +403,13 @@ ep_dds <- function(fn, p_bounds, t_iter= 1000, n_cores= 4,r= 0.2, ...) {
       R2_best=rPearson(sim$sim_flow_cfs,sim$flow_cfs)^2
       kge_best = KGE(sim$sim_flow_cfs,sim$flow_cfs)
 
-      message( "iter:", format(i, width=nchar(t_iter), justify="right"),
-               "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=6, nsmall=3, justify="left"),
-               "  Piter_Len:", format(as.integer(p_iter), width=6, nsmall=2, justify="left"),
-               "  NSE:", format(round(nse_best,2), width=6, nsmall=2, justify="left"),
-               "  Pbias", format(round(pbias_best,2), width=6, nsmall=2, justify="left"), "%",
-               "  R2:", format(round(R2_best,2), width=6, nsmall=2, justify="left"),
-               "  KGE:", format(round(kge_best,2), width=6, nsmall=2, justify="left"))
+      message( "iter:", format(i, width=nchar(t_iter)+1, justify="right"),
+               "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=9, nsmall=3, justify="right"),
+               "  Piter_Len:", format(as.integer(p_iter), width=6, nsmall=2, justify="right"),
+               "  Pbias:", format(round(pbias_best,2), width=8, nsmall=2, justify="right"), "%",
+               "  R2:", format(round(R2_best,2), width=6, nsmall=2, justify="right"),
+               "  NSE:", format(round(nse_best,2), width=6, nsmall=2, justify="right"),
+               "  KGE:", format(round(kge_best,2), width=6, nsmall=2, justify="right"))
 
     }
   }
