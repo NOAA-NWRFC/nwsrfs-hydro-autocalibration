@@ -150,66 +150,61 @@ lognse_r2_obj <- function(results_daily, results_inst) {
 
 # Daily KGE low flow + instantaneous kge
 kgelf_kge_obj <- function(results_daily, results_inst) {
-  return(kgelf_fun(results_daily)+kge_fun(results_inst))
+  return(kgelf_fun(results_daily) + kge_fun(results_inst))
 }
 
 # Daily logNSE + instantaneous NPBias for the top 5% flows
 lognse_npbias95th_obj <- function(results_daily, results_inst) {
+  daily_obj <- lognse_fun(results_daily)
 
-  daily_obj = lognse_fun(results_daily)
-
-  filter_th = 0.95
-  inst_obj = npbias_fun(results_inst |>
-                           filter(quantile(flow_cfs, filter_th, na.rm = TRUE) < flow_cfs))
+  filter_th <- 0.95
+  inst_obj <- npbias_fun(results_inst |>
+    filter(quantile(flow_cfs, filter_th, na.rm = TRUE) < flow_cfs))
 
   return(daily_obj + inst_obj)
 }
 
 # Daily kge + instantaneous NPBias for the flows larger than 2,000cfs
 kge_npbias2000q_obj <- function(results_daily, results_inst) {
+  daily_obj <- kge_fun(results_daily)
 
-  daily_obj = kge_fun(results_daily)
-
-  filter_th = 0.95
-  inst_obj = npbias_fun(results_inst |>
-                          filter(2000 < flow_cfs))
+  filter_th <- 0.95
+  inst_obj <- npbias_fun(results_inst |>
+    filter(2000 < flow_cfs))
 
   return(daily_obj + inst_obj)
 }
 
 # Daily NPBias for May–July + instantaneous KGE
 npbias050607m_kge_obj <- function(results_daily, results_inst) {
+  filter_mths <- c(5, 6, 7)
+  daily_obj <- npbias_fun(results_daily |>
+    filter(month %in% filter_mths))
 
-  filter_mths = c(5, 6, 7)
-  daily_obj = npbias_fun(results_daily |>
-                            filter(month %in% filter_mths))
-
-  inst_obj = kge_fun(results_inst)
+  inst_obj <- kge_fun(results_inst)
 
   return(daily_obj + inst_obj)
 }
 
 # Daily 0.75 logNSE + 0.25 NSE + instantaneous NPBias for the top 1% flows
 nse.25wlognse.75w_npbias99th_obj <- function(results_daily, results_inst) {
-
-  daily_obj = 0.25 * nse_fun(results_daily) +
+  daily_obj <- 0.25 * nse_fun(results_daily) +
     0.75 * lognse_fun(results_daily)
 
-  filter_th = 0.99
-  inst_obj = npbias_fun(results_inst |>
-                           filter(quantile(flow_cfs, filter_th, na.rm = TRUE) < flow_cfs))
+  filter_th <- 0.99
+  inst_obj <- npbias_fun(results_inst |>
+    filter(quantile(flow_cfs, filter_th, na.rm = TRUE) < flow_cfs))
 
   return(daily_obj + inst_obj)
 }
 
 # Daily 40% logNSE + instantaneous 60% NSE for November–March
 lognse.4W_nse1112010203m.6W_obj <- function(results_daily, results_inst) {
+  daily_obj <- 0.4 * lognse_fun(results_daily)
 
-  daily_obj = 0.4 * lognse_fun(results_daily)
-
-  filter_mths = c(11, 12, 1, 2, 3)
-  inst_obj = 0.6 * nse_fun(results_inst |>
-                              filter(month %in% filter_mths))
+  filter_mths <- c(11, 12, 1, 2, 3)
+  inst_obj <- 0.6 * nse_fun(results_inst |>
+    filter(month %in% filter_mths))
 
   return(daily_obj + inst_obj)
 }
@@ -218,30 +213,30 @@ lognse.4W_nse1112010203m.6W_obj <- function(results_daily, results_inst) {
 ######## These are metric functions for use in the objective function #########
 ###############################################################################
 
-nse_fun <- function(result){
-  with(result,NSE(sim_flow_cfs,flow_cfs)) * -100
+nse_fun <- function(result) {
+  with(result, NSE(sim_flow_cfs, flow_cfs)) * -100
 }
 
-lognse_fun <- function(result){
-  with(result,NSE(log(sim_flow_cfs+1),log(flow_cfs+1))) * -100
+lognse_fun <- function(result) {
+  with(result, NSE(log(sim_flow_cfs + 1), log(flow_cfs + 1))) * -100
 }
 
-kge_fun <- function(result, s=c(1,1,1)){
-  with(result,KGE(sim_flow_cfs,flow_cfs,method="2012"),s=s) * -100
+kge_fun <- function(result, s = c(1, 1, 1)) {
+  with(result, KGE(sim_flow_cfs, flow_cfs, method = "2012"), s = s) * -100
 }
 
-kgelf_fun <- function(result, s=c(1,1,1)){
-  with(result,KGElf(sim_flow_cfs,flow_cfs,method="2012"),s=s) * -100
+kgelf_fun <- function(result, s = c(1, 1, 1)) {
+  with(result, KGElf(sim_flow_cfs, flow_cfs, method = "2012"), s = s) * -100
 }
 
-kgenp_fun <- function(result){
-  with(result,KGEnp(sim_flow_cfs,flow_cfs)) * -100
+kgenp_fun <- function(result) {
+  with(result, KGEnp(sim_flow_cfs, flow_cfs)) * -100
 }
 
-npbias_fun <- function(result){
-  pbias_obj = (1-abs(with(result,pbias(sim_flow_cfs,flow_cfs)))/100)*-100
+npbias_fun <- function(result) {
+  pbias_obj <- (1 - abs(with(result, pbias(sim_flow_cfs, flow_cfs))) / 100) * -100
 }
 
-r2_fun <- function(result){
-  with(result,rPearson(sim_flow_cfs,flow_cfs))^2 * -100
+r2_fun <- function(result) {
+  with(result, rPearson(sim_flow_cfs, flow_cfs))^2 * -100
 }
