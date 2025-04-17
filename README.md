@@ -1,16 +1,105 @@
 # NWRFC Autocalibration Framework
 
-**Description**  
+## Description
 This repository contains a version of the Northwest River Forecast Center (NWRFC) autocalibration tool for parameterizing the National Weather Service River Forecast System (NWSRFS) models using an evolving dynamically dimensioned search (EDDS). NWSRFS, originally developed in the late 1970s, remains a core component of the NWS Community Hydrologic Prediction System (CHPS).  This framework supports simultaneous calibration of a suite of NWSRFS models across multiple zones, including: SAC-SMA, SNOW17, Unit Hydrograph, LAGK, CHANLOSS, and CONS_USE.  See the [NWSRFS documentation](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) for more detail on each individual model.
 
 **Language:** R  
 **Package Dependency:** [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models)  
-**Limitations:**
+
+
+## Prerequisites
+
+1. Install [R](http://r-project.org). 
+
+2. Install the `rfchydromodels` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
+    
+        devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='rfchydromodels')
+
+3. Install these R packages: 
+
+        install.packages(c('xfun','import','devtools'))
+
+4. The autocalibration scripts will try to install a number of R packages when run. If this fails you may need to install the packages manually. 
+
+**NOTES:**
+
 1. Due to its use of fork-based parallelism, the tool is not compatible with Windows systems.
+
 2. The code has been tested only with a 6-hour timestep. Use with other timesteps may require additional configuration and validation.
 
-**Acknowledgment:**  
-The traditional dynamically dimensioned search (DDS) algorithm builds on original code by David Kneis ([david.kneis@tu-dresden.de](mailto:david.kneis@tu-dresden.de)). See: [dds.r GitHub](https://github.com/dkneis/mcu/blob/master/R/dds.r)
+## Example calibrations
+Four basins are included in this repo that serve as examples which utilize all the features of the automatic calibration software. We recommend that you complete at least 4 cross validation runs un addition to the full period of record run to evaluate the calibration for any potential issues.
+
+### FSSO3 
+Nehalem R near Foss, Oregon (USGS \#14301000, NWS ID FSSO3) is a rain dominated basin with a winter peak and limited snowmelt. 
+
+    # period of record run
+    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3
+
+    # cross validation
+    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 1
+    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 2
+    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 3
+    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 4
+
+    # postprocessing
+    ./postprocess.R --dir runs/1zone --basins FSSO3
+
+    # cross-validation
+    ./cv-plots.R --dir runs/1zone --basins FSSO3
+
+### SAKW1 
+the Sauk River Near Sauk, WA (USGS \#12189500, NWD ID, SAKW1), which is a basin with routed upstream inflow and both summer snowmelt and winter rain. 
+
+    # period of record rbestun
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1
+
+    # cross validation
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 1
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 2
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 3
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 4
+
+    # postprocessing
+    ./postprocess.R --dir runs/2zone --basins SAKW1
+
+    # cross-validation
+    ./cv_plots.R --dir runs/2zone --basins SAKW1
+
+### WGCM8 
+the middle fork of the Flathead River near West Glacier, Montana (USGS \#12358500, NWS ID WGCM8) is a snow dominated basin with a summer peak and limited winter rainfall. 
+
+    # period of record run
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8
+
+    # cross validation
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 1
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 2
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 3
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 4
+
+    # postprocessing
+    ./postprocess.R --dir runs/2zone --basins WGCM8
+
+    # cross-validation
+    ./cv_plots.R --dir runs/2zone --basins WGCM8
+
+### WCHW1  
+
+    # period of record run
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1
+
+    # cross validation
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 1
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 2
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 3
+    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 4
+
+    # postprocessing
+    ./postprocess.R --dir runs/2zone --basins WCHW1
+
+    # cross-validation
+    ./cv_plots.R --dir runs/2zone --basins WCHW1
 
 ## Autocalibration Steps
 
@@ -23,8 +112,8 @@ See example directories and required file formats in `runs/1zone` and `runs/2zon
 ├── flow_daily_[LID].csv             # Daily average flow observations (optional)
 ├── flow_instantaneous_[LID].csv     # Instantaneous flow observations (optional)
 ├── forcing_por_[LID]-[zone #].csv   # Forcing data for each zone (MAP, MAT, PTPS)
-├── pars_default.csv                 # Default parameter file (-99 indicates optimization)
-├── pars_limits.csv                  # Upper/lower limits for parameters
+├── pars_default.csv                 # Default parameter file (-99 indicates the parameter will be optimized)
+├── pars_limits.csv                  # Upper/lower limits for parameters that are optimized
 ├── [optional files...]
 ```
 
@@ -39,9 +128,32 @@ See example directories and required file formats in `runs/1zone` and `runs/2zon
 - `RR LID`: Upstream reach LID (e.g., `WCHW1` for LAGK optimization)
 - Need at least one daily or instanteous flow file for autocalibration 
 
-### `run-controller.R`
+### 1. `run-controller.R`
 
-Creates the optimized parameter file (`pars_optimal.csv`).
+The `run-controller.R` script is run to create a optimized parameter file (`pars_optimal.csv`).  
+
+    usage: run-controller.R [--] [--help] [--por] [--overwrite] [--lite]
+          [--dir DIR] [--basin BASIN] [--objfun OBJFUN] [--optimizer
+          OPTIMIZER] [--cvfold CVFOLD] [--num_cores NUM_CORES]
+
+    Auto-calibration run controller
+
+    flags:
+      -h, --help        show this help message and exit
+      -p, --por         Do a period of record run [default]
+      -ov, --overwrite  Don't create new results dir, overwrite
+      -l, --lite        Testing run with 1/2 the total optimizer iteration
+
+    optional arguments:
+      -d, --dir         Input directory path
+      -b, --basin       Basin name
+      -o, --objfun      Objective function name [default: nselognse_NULL]
+      --optimizer       Optimzer to use {edds [default],pso,dds} [default:
+                        edds]
+      -c, --cvfold      CV fold to run (integer 1-4)
+      -n, --num_cores   Number of cores to allocate for run, FULL uses all
+                        availavble cores -2 [default: 8]
+
 
 **Example:**
 ```bash
@@ -49,11 +161,12 @@ Creates the optimized parameter file (`pars_optimal.csv`).
 ```
 
 **Notes:**
-- Only one basin can be calibrated at a time.
-- Multiple runs can use the same directory; results are placed in `results_por_01`, `results_por_02`, etc.
-- CV runs: use `--cvfold [#]`.
-- Light run (fewer iterations): use `--lite`.
-- Overwrite last results directory: use `--overwrite`.
+
+- The script can only calibrate one basin a time, although multiple can be done manually by utilizing only a portion of avaiable cores.
+- Multiple runs can use the same directory; results are placed in squentially numbered output directories, `results_por_01`, `results_por_02`, etc.
+- For cross validation runs: use `--cvfold [#]`. The code is set up to do 4 folds so `--cvfold 1` will drop the first 25% of the data in the calculation of the objective function. 
+- Light run (fewer optimizer iterations): use `--lite`.
+- Overwrite last results directory, i.e. cont increment the output directory: use `--overwrite`.
 - Control number of cores: `--cores [#]` or `--cores Full` (uses all available minus 2).
 - Supports calibration with daily, instantaneous, or both flow types.
 
@@ -84,27 +197,45 @@ For custom objective functions, refer to comments in [obj_fun.R](https://github.
 3. Selection of objective function should consider availability of daily and instanteous flow observations.
 4. Errors in custom functions produce descriptive messages starting with  
    `"Objective Function had the following error, exiting:"`
+5. To provide your own objective function, you must edit the R package source code directly and re-install the package. Functionality to allow external functions may be added in a future release. 
  
-### `postprocess.R`
+### 2. `postprocess.R`
 
-Processes output to create simulation time series and supporting tables.
+Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been created in a run directory, `postprocess.R` can be used to run create simulation timeseries csv files and other supporting tables.  Plots are outut into `<dir>/plots` and data files are outut into `<dir>`.
+
+
+    usage: postprocess.R [--] [--help] [--dir DIR] [--reportdir REPORTDIR]
+          [--basins BASINS] [--run RUN]
+
+    Auto-calibration postprocessor
+
+    flags:
+      -h, --help        show this help message and exit
+
+    optional arguments:
+      -d, --dir         Input directory path containing basin directories
+      -rd, --reportdir  Output directory for reports
+      -b, --basins      Basins to run
+      -r, --run         Output directories to postprocess
 
 ```bash
 ./postprocess.R --dir runs/2zone --basins SFLN2 --run results_cv_3_01
 ```
 
 **Notes:**
-- Processes all completed runs in `--dir` path by default unless `--basins` or `--run` is specified.
+- The script processes all completed runs in `--dir` path by default unless `--basins` or `--run` is specified.
 
-### `cv-plots.R`
+### 3. `cv-plots.R`
 
-Analyzes and visualizes results from POR and CV runs.
+`cv-plots.R`, Analyzes and visualizes results from POR and CV runs and creates cross validation plots. Note that each cross validation calibration run must have been previously completed. For example:
 
 ```bash
 ./cv-plots.R --dir runs/2zone --basins WGCM8 SAKW1
 ```
+
 **Notes:**
 - When multiple POR or CV runs exist, selects the run with the highest KGE score .
+- If the `--basins` argument is omitted then it runs all available basins. 
 - Plots compare CV metrics vs. stationary bootstrap from POR.
 - Bootstrapping draws `x`-year samples from POR (where `x` = average CV fold length).
   - 8,000 bootstrap iterations performed.
@@ -161,6 +292,9 @@ Please cite the following work when using this tool:
 Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the Northwest River Forecast Center." Unpublished manuscript, Submitted 2025, JAWRA Journal of the American Water Resources Association
 
 If adapting this code, please credit this repository as the original source. 
+
+## Acknowledgment
+The traditional dynamically dimensioned search (DDS) algorithm builds on original code by David Kneis ([david.kneis@tu-dresden.de](mailto:david.kneis@tu-dresden.de)). See: [dds.r GitHub](https://github.com/dkneis/mcu/blob/master/R/dds.r)
 
 ## Legal Disclaimer
 

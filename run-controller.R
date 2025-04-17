@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Written by Cameron Bracken and Geoffrey Walters (2025)
+# Please see the LICENSE file for license information
+
 # install.packages(c('xfun','import','devtools'))
 xfun::pkg_load2('magrittr','dplyr', 'data.table', 'dtplyr','hydroGOF',
                 'digest','lubridate','readr','tibble','ggthemes',
@@ -42,8 +45,8 @@ parser = arg_parser("Auto-calibration run controller", hide.opts = TRUE)
 parser = add_argument(parser, "--dir", help = "Input directory path")
 parser = add_argument(parser, "--basin", help = "Basin name")
 parser = add_argument(parser, "--objfun", default='nselognse_NULL', help = "Objective function name")
-#parser = add_argument(parser, "--optimizer", default='pso', help = "Optimzer to use {pso,dds}")
-parser = add_argument(parser, "--cvfold", default=NA_integer_, help = "CV fold to run (integer)")
+parser = add_argument(parser, "--optimizer", default='edds', help = "Optimzer to use {edds [default],pso,dds}")
+parser = add_argument(parser, "--cvfold", default=NA_integer_, help = "CV fold to run (integer 1-4)")
 parser = add_argument(parser, "--num_cores", default="8", help = "Number of cores to allocate for run, FULL uses all availavble cores -2")
 parser = add_argument(parser, "--por", flag=TRUE, help = "Do a period of record run [default]")
 parser = add_argument(parser, "--overwrite", flag=TRUE, help = "Don't create new results dir, overwrite",short = '-ov')
@@ -327,17 +330,12 @@ if(length(unique(seeds))!=length(seeds)){
 ####################Create output plot
 #############################################################################
 
-f_trace$iter=1:nrow(f_trace)
-pdf(file.path(output_path,'plots','objfun_trace.pdf'),         # File name
-    width = 10, height =10, # Width and height in inches
-    bg = "white",          # Background color
-    colormodel = "cmyk",    # Color model (cmyk is required for most publications)
-    paper = "a4r")          # Paper size
-# Creating a plot
-plot(obj_fun ~ iter, data=f_trace[-(1:100),],main="Auto Calibration Evolution", xlab="Iteration",
-     ylab="Objective Function Score", pch=19, cex=.5)
-# Closing the graphical device
-dev.off()
+f_trace$iter <- 1:nrow(f_trace)
+p_t <- ggplot(f_trace[-(1:100), ]) +
+  geom_point(aes(iter, obj_fun)) +
+  labs(main = "Auto Calibration Evolution", x = "Iteration", y = "Objective Function Score") +
+  theme_bw()
+ggsave(sprintf("%s/objfun_trace.pdf", plot_path), p_t, width = 10, height = 8)
 
 p_trace_plot=p_trace |>
   mutate(f_trace) |>

@@ -1,3 +1,7 @@
+
+# Written by Cameron Bracken and Geoffrey Walters (2025)
+# Please see the LICENSE file for license information
+
 update_params <- function(p, p_names, default_pars){
 
   #nl = nml::read_nml('namelist.HHWM8')
@@ -315,7 +319,7 @@ ep_dds <- function(fn, p_bounds, t_iter= 1000, n_cores= 4,r= 0.2, ...) {
   kge_best = KGE(sim$sim_flow_cfs,sim$flow_cfs)
 
   message( "iter:", format(i, width=nchar(t_iter), justify="right"),
-           "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=6, nsmall=2, justify="left"),
+           "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=6, nsmall=3, justify="left"),
            "  Piter_Len:", format(as.integer(1), width=6, nsmall=2, justify="left"),
            "  NSE:", format(round(nse_best,2), width=6, nsmall=2, justify="left"),
            "  Pbias", format(round(pbias_best,2), width=6, nsmall=2, justify="left"), "%",
@@ -400,7 +404,7 @@ ep_dds <- function(fn, p_bounds, t_iter= 1000, n_cores= 4,r= 0.2, ...) {
       kge_best = KGE(sim$sim_flow_cfs,sim$flow_cfs)
 
       message( "iter:", format(i, width=nchar(t_iter), justify="right"),
-               "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=6, nsmall=2, justify="left"),
+               "  Fbest:", format(round(f_best,ifelse(f_best<=-100,2,3)), width=6, nsmall=3, justify="left"),
                "  Piter_Len:", format(as.integer(p_iter), width=6, nsmall=2, justify="left"),
                "  NSE:", format(round(nse_best,2), width=6, nsmall=2, justify="left"),
                "  Pbias", format(round(pbias_best,2), width=6, nsmall=2, justify="left"), "%",

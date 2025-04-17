@@ -1,3 +1,6 @@
+# Written by Cameron Bracken and Geoffrey Walters (2025)
+# Please see the LICENSE file for license information
+
 # Instructions for Creating Objective Functions in the Calibration Program
 #
 # Below are the core guidelines for defining objective functions used by the
