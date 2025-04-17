@@ -176,6 +176,8 @@ The `run-controller.R` script is run to create a optimized parameter file (`pars
 - Light run (fewer optimizer iterations): use `--lite`.
 - Overwrite last results directory, i.e. cont increment the output directory: use `--overwrite`.
 - Control number of cores: `--cores [#]` or `--cores Full` (uses all available minus 2).
+- The number of iterations is set to 5000 (or 2500 for a lite run) and not user editiable intentionally based on extensive testing of what will produce stable parameter sets. 
+- Increasing the number of cores used will not speed up the calibration but may make the calibration converge faster or come to a better overall solution. 
 - Supports calibration with daily, instantaneous, or both flow types.
 
 
