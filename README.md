@@ -158,7 +158,7 @@ See [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models) f
 
 Please cite the following work when using this tool:
 
-Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the Northwest River Forecast Center." Unpublished manuscript, Submitted 2025, JAWA Journal of the American Water Resources Association
+Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the Northwest River Forecast Center." Unpublished manuscript, Submitted 2025, JAWRA Journal of the American Water Resources Association
 
 If adapting this code, please credit this repository as the original source. 
 
