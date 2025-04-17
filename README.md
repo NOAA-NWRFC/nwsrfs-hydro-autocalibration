@@ -1,10 +1,10 @@
 # NWRFC Autocalibration Framework
 
-**Description** This repository contains a version of the NWRFC Autocalibration tool of the National Weather Service River Forecast System Models (NWSRFS) using an evolving dynamically dimensioned search (edds). Originally developed in the late 1970s, NWSRFS remains a core component of the NWS Community Hydrologic Prediction System (CHPS). Suite of NWRFS models that can be calibrated simultaneously, with multiple zones, include:  SAC-SMA, SNOW17, Unit Hydrograph, LAGK, CHANLOSS, and CONS_USE.  NWRFS documentation for more detail about each individual model [link](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) .
+**Description** This repository contains a version of the Northwest River Forecast Center (NWRFC) Autocalibration tool for parameterization of the National Weather Service River Forecast System Models (NWSRFS) using an evolving dynamically dimensioned search (edds).  NWSRFS  was originally developed in the late 1970s and remains a core component of the NWS Community Hydrologic Prediction System (CHPS). Suite of NWRFS models that can be calibrated simultaneously, with multiple zones, include:  SAC-SMA, SNOW17, Unit Hydrograph, LAGK, CHANLOSS, and CONS_USE.  See NWRFS documentation for more detail about each individual model [link](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) .
 
 **Language:**   R\
 **Package Dependency:**  [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models)\
-**Limitations:**  (1) Due to usage of fork implemenation of parallelism, does not work on a windows system. (2) Code has been tested only with a 6-hour time step. Use with other time steps may require additional configuration or validation.\
+**Limitations:**  **(1)** Due to usage of fork implemenation of parallelism, does not work on a windows system. **(2)** Code has been tested only with a 6-hour time step. Use with other time steps may require additional configuration or validation.\
 **Acknowledgement:**  Traditional dynamically dimensioned search (dds) alogorithm developed by building on original code by David Kneis [david.kneis@@tu-dresden.de], [dds.r github](https://github.com/dkneis/mcu/blob/master/R/dds.r)
 
 ## Autocalb steps
@@ -18,18 +18,18 @@ A general directory structure is as follows:
 - [LID]
   - flow_daily_[LID].csv *[daily average flow observations]* **and/or**
   - flow_instantaneous_[LID].csv *[instanteous flow observations]*
-  - forcing_por_[LID]-[zone #].csv *[model forcing data for each zone precipitation, temperature, and percent precipitation as snow (ptps), for the period of record]*
+  - forcing_por_[LID]-[zone #].csv *[model forcing data for each zone precipitation, MAP, MAT, and PTPS, for the period of record]*
   - pars_default.csv *[default parameter files (values of -99 indicate parameter to be optimized)]*
   - pars_limits.csv *[upper and lower limits for parameters to be optimized]*\
 **<ins>Optional Files<ins>**
-  - forcing_validation_cv_[fold #]_[LID]-[zone #].csv *[model forcing data for each zone, precipitation, temperature, and percent precipitation as snow (ptps), for a cross validation period]*
+  - forcing_validation_cv_[fold #]_[LID]-[zone #].csv *[model forcing data for each zone,MAP, MAT, and PTPS, for a cross validation period]*
   - upflow_[RR LID].csv *[upstream flows for a routing reach/LAGK model]*
 
 Notes: 
 1. LID: Five alphanumeric characters (ex:  FSSO3)
 2. zone #: Unique numeric character specifying zone. Autocalibration tool can accept multiple zones but requires at least one
 3. fold #: Unique numeric character specifying fold number for cross validation (CV). Autocalibration tool can accept folds and is insenstitive to overlap between any folds
-4. RR LID:  Five alphanumeric characters (ex:  WCHW1) representing a upstream reach for optimization of lagk parameters
+4. RR LID:  Five alphanumeric characters (ex:  WCHW1) representing a upstream reach for optimization of lagk parameters\
 
 ### run-controller.R 
 run-controller.R script is run to create a optimized parameter file (pars_optimal.csv).  Example:
@@ -125,6 +125,12 @@ WGCM8 (2zone):  MF Flathead near West Glacier, snow dominated basin in Montana, 
 - The `cl_type` parameter can be either 1 or 2.  A basin using the CHANLOSS model can only have one `cl_type`
   - 1:  VARP CHANLOSS adjustment, parameter value is equivalent to a multiplication factor applied to the sim
   - 2:  VARC CHANLOSS adjustment, parameter value is subtracted from the sim
+
+### Forcings
+
+There are three required forcings for each zone:  Mean areal precipitation (MAP), meean areal temperature (MAT), and percent precipitation as snow (PTPS).
+
+Be aware that forcing data is considered end of timestep, where as simulated flow is considered beginning of time step.  When using tool, depending on how forcing data are constructed, timeseries may need to be shifted back one time step.  
 
 ### AdjustQ
 
