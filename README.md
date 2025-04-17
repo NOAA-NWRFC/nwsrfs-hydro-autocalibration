@@ -154,7 +154,7 @@ For LAGK calibration, upstream flows are derived using [AdjustQ](https://publicw
 
 See [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models) for [equivalent Python code](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/blob/main/py-rfchydromodels/utilities/adjustq.py).
 
-## Credits and references
+## Credits and References
 
 Please cite the following work when using this tool:
 
@@ -162,7 +162,7 @@ Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the
 
 If adapting this code, please credit this repository as the original source. 
 
-## Legal disclaimer
+## Legal Disclaimer
 
 This is a scientific product and does not represent official communication from NOAA or the U.S. Department of Commerce. All code is provided "as is."
 
