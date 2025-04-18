@@ -132,15 +132,13 @@ The `run-controller.R` script is run to create a optimized parameter file (`pars
 
 - The script can only calibrate one basin a time, although multiple can be done manually by utilizing only a portion of avaiable cores.
 - Multiple runs can use the same directory; results are placed in squentially numbered output directories, `results_por_01`, `results_por_02`, etc.
-- For cross validation runs: use `--cvfold [#]`. The code is set up to do 4 folds so `--cvfold 1` will drop the first 25% of the data in the calculation of the objective function. 
+- For cross validation runs: use `--cvfold [#]`. The cross validation fold number must have a correspond forcing file in the basin directory.  See [Required Directory Structure](#required-directory-structure) section for more information on the cross validation forcing file.
 - Light run (fewer optimizer iterations): use `--lite`.
 - Overwrite last results directory, i.e. cont increment the output directory: use `--overwrite`.
 - Control number of cores: `--cores [#]` or `--cores Full` (uses all available minus 2).
 - The number of iterations is set to 5000 (or 2500 for a lite run) and not user editiable intentionally based on extensive testing of what will produce stable parameter sets. 
 - Increasing the number of cores used will not speed up the calibration but may make the calibration converge faster or come to a better overall solution. 
 - Supports calibration with daily, instantaneous, or both flow types.
-
-
 
 #### Objective Function Argument (`--objfun`)
 
@@ -159,23 +157,22 @@ Default: `nselognse_NULL`
 | lognse_nse                 | nse.25wlognse.75w_npbias99th   |
 | lognse_kge                 | lognse.4W_nse1112010203m.6W    |
 
-For custom objective functions, refer to comments in [obj_fun.R](https://github.com/geoffrey-walters/nwrfc-hydro-evolvingDDS/blob/main/obj_fun.R).  
+To create a custom objective function, edit the [obj_fun.R](https://github.com/geoffrey-walters/nwrfc-hydro-evolvingDDS/blob/main/obj_fun.R) file.
 
 **Notes:**
 1. Do not include `_obj` portion of function name in argument.
 2. Functions must accept `results_daily`, `results_inst` as inputs.
 3. Selection of objective function should consider availability of daily and instanteous flow observations.
-4. Errors in custom functions produce descriptive messages starting with  
+4. Errors in custom functions produce descriptive messages when running `run-controller.R` starting with  
    `"Objective Function had the following error, exiting:"`
-5. To provide your own objective function, you must edit the R package source code directly and re-install the package. Functionality to allow external functions may be added in a future release. 
+5.   The [obj_fun.R](https://github.com/geoffrey-walters/nwrfc-hydro-evolvingDDS/blob/main/obj_fun.R) file includes additional guidance.
  
 ### 2. `postprocess.R`
 
-Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been created in a run directory, `postprocess.R` can be used to run create simulation timeseries csv files and other supporting tables.  Plots are outut into `<dir>/plots` and data files are outut into `<dir>`.
+Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been created in a run directory, `postprocess.R` can be used to run create simulation timeseries csv files and other supporting tables.  Data files are outut into `<dir>` and plots are output into `<dir>/plots`.
 
-
-    usage: postprocess.R [--] [--help] [--dir DIR] [--reportdir REPORTDIR]
-          [--basins BASINS] [--run RUN]
+    usage: postprocess.R  [--] [--help] [--dir DIR] [--basins BASINS] 
+          [--run RUN]
 
     Auto-calibration postprocessor
 
@@ -184,10 +181,10 @@ Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been cr
 
     optional arguments:
       -d, --dir         Input directory path containing basin directories
-      -rd, --reportdir  Output directory for reports
       -b, --basins      Basins to run
       -r, --run         Output directories to postprocess
 
+**Example:**
 ```bash
 ./postprocess.R --dir runs/2zone --basins SFLN2 --run results_cv_3_01
 ```
@@ -197,16 +194,31 @@ Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been cr
 
 ### 3. `cv-plots.R`
 
-`cv-plots.R`, Analyzes and visualizes results from POR and CV runs and creates cross validation plots. Note that each cross validation calibration run must have been previously completed. For example:
+`cv-plots.R`, generates plots comparing CV metrics with results from a stationary bootstrap of the POR run.
 
+    usage: cv-plot.R  [--] [--help] [--cleanup] [--dir DIR]
+          [--basins BASINS] 
+
+    Creates CV Plots
+
+    flags:
+      -h, --help        show this help message and exit
+      -c, --cleanup     Option to delete results directories which are not 
+                        used for CV analysis
+                        
+    optional arguments:
+      -d, --dir         Input directory path containing basin directories
+      -b, --basins      Basins to run
+
+
+**Example:**
 ```bash
 ./cv-plots.R --dir runs/2zone --basins WGCM8 SAKW1
 ```
 
 **Notes:**
-- When multiple POR or CV runs exist, selects the run with the highest KGE score .
+- When multiple POR or CV runs exist, the runs with the highest KGE score are used to develop the CV plots.
 - If the `--basins` argument is omitted then it runs all available basins. 
-- Plots compare CV metrics vs. stationary bootstrap from POR.
 - Bootstrapping draws `x`-year samples from POR (where `x` = average CV fold length).
   - 8,000 bootstrap iterations performed.
   
