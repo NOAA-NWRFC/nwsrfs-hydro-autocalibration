@@ -169,7 +169,7 @@ To create a custom objective function, edit the [obj_fun.R](https://github.com/g
  
 ### 2. `postprocess.R`
 
-Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been created in a run directory, `postprocess.R` can be run to create simulation timeseries csv files and other supporting tables.  Data files are outut into `<dir>/<basin>` and plots are output into `<dir>/<basin>/plots`.
+Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been created in a run directory, `postprocess.R` can be run to create simulation timeseries csv files and other supporting tables.  Data files are outut into `<dir>/<basin>/<run>` and plots are output into `<dir>/<basin>/<run>/plots`.
 
     usage: postprocess.R  [--] [--help] [--dir DIR] [--basins BASINS] 
           [--run RUN]
@@ -194,7 +194,7 @@ Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been cr
 
 ### 3. `cv-plots.R`
 
-`cv-plots.R`, generates plots comparing CV metrics with results from a stationary bootstrap of the POR run.
+`cv-plots.R`, generates plots comparing CV metrics with results from a stationary bootstrap of the POR run. plots are output into `<dir>/cv_plots`
 
     usage: cv-plot.R  [--] [--help] [--cleanup] [--dir DIR]
           [--basins BASINS] 
