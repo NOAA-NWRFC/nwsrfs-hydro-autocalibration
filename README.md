@@ -35,56 +35,31 @@ or from the command line:
 
 2. The code has been tested only with a 6-hour timestep. Use with other timesteps may require additional configuration and validation.
 
-## Example calibrations
-Four basins are included in this repo that serve as examples which utilize all the features of the automatic calibration software. We recommend that you complete at least 4 cross validation runs un addition to the full period of record run to evaluate the calibration for any potential issues.
+## Example Calibrations
+There are five basin directories included in this repo that serve as examples which utilize all the features of the auto calibration tool.
 
-### FSSO3 
-Nehalem R near Foss, Oregon (USGS \#14301000, NWS ID FSSO3) is a rain dominated basin with a winter peak and limited snowmelt. 
+**Example Basins**
+| NWSLI ID  |  Name | USGS # | Zones | Description |
+|--------|-------|-------|-------|-------------|
+| FSSO3  | Nehalem at Foss, OR|14301000 |1     | Rain-dominated (CAMELS) |
+| SAKW1  | Sauk nr Sauk, WA|12189500 |2     |  Rain/Snow-dominated, LAGK example (CAMELS)|
+| SFLN2  | Salmon Falls nr San Jacinto, NV|13105000 |2     | Arrid basin, CONS_USE and CHANLOSS example |
+| WCHW1  | Sauk ab White Chuck, WA|12186000|2     | Rain/Snow-dominated, routing reach to SAKW1 (CAMELS) |
+| WGCM8  | MF Flathead nr W Glacier, MT|12358500 |2     | Snow-dominated (CAMELS) |
 
+*supporting files are stored in the `runs/` directory
+
+### Example Workflow 
+ We recommend that you complete at least 4 cross validation runs in addition to the full period of record run to evaluate the calibration for any potential issues.
+ 
     # period of record run
-    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3
+    ./run-controller.R --dir runs/2zone --objfun lognse_kge --basin WGCM8
 
     # cross validation
-    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 1
-    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 2
-    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 3
-    ./run-controller.R --dir runs/1zone --objfun kge_NULL --basin FSSO3 --cvfold 4
-
-    # postprocessing
-    ./postprocess.R --dir runs/1zone --basins FSSO3
-
-    # cross-validation
-    ./cv-plots.R --dir runs/1zone --basins FSSO3
-
-### SAKW1 
-the Sauk River Near Sauk, WA (USGS \#12189500, NWD ID, SAKW1), which is a basin with routed upstream inflow and both summer snowmelt and winter rain. 
-
-    # period of record rbestun
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1
-
-    # cross validation
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 1
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 2
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 3
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin SAKW1 --cvfold 4
-
-    # postprocessing
-    ./postprocess.R --dir runs/2zone --basins SAKW1
-
-    # cross-validation
-    ./cv_plots.R --dir runs/2zone --basins SAKW1
-
-### WGCM8 
-the middle fork of the Flathead River near West Glacier, Montana (USGS \#12358500, NWS ID WGCM8) is a snow dominated basin with a summer peak and limited winter rainfall. 
-
-    # period of record run
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8
-
-    # cross validation
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 1
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 2
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 3
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WGCM8 --cvfold 4
+    ./run-controller.R --dir runs/2zone --objfun lognse_kge --basin WGCM8 --cvfold 1
+    ./run-controller.R --dir runs/2zone --objfun lognse_kge --basin WGCM8 --cvfold 2
+    ./run-controller.R --dir runs/2zone --objfun lognse_kge --basin WGCM8 --cvfold 3
+    ./run-controller.R --dir runs/2zone --objfun lognse_kge --basin WGCM8 --cvfold 4
 
     # postprocessing
     ./postprocess.R --dir runs/2zone --basins WGCM8
@@ -92,28 +67,11 @@ the middle fork of the Flathead River near West Glacier, Montana (USGS \#1235850
     # cross-validation
     ./cv_plots.R --dir runs/2zone --basins WGCM8
 
-### WCHW1  
+Any of the example basins could be swapped into this same workflow.
 
-    # period of record run
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1
+## Required Directory Structure
 
-    # cross validation
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 1
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 2
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 3
-    ./run-controller.R --dir runs/2zone --objfun kge_NULL --basin WCHW1 --cvfold 4
-
-    # postprocessing
-    ./postprocess.R --dir runs/2zone --basins WCHW1
-
-    # cross-validation
-    ./cv_plots.R --dir runs/2zone --basins WCHW1
-
-## Autocalibration Steps
-
-### Required Directory Structure
-
-See example directories and required file formats in `runs/1zone` and `runs/2zone`.
+Refer to the example basins in the `runs/` directory for the expected directory structure and file formats.
 
 ```
 [LID]/
@@ -135,6 +93,8 @@ See example directories and required file formats in `runs/1zone` and `runs/2zon
 - `fold #`: Numeric ID for cross-validation fold
 - `RR LID`: Upstream reach LID (e.g., `WCHW1` for LAGK optimization)
 - Need at least one daily or instanteous flow file for autocalibration 
+
+## Autocalibration Steps
 
 ### 1. `run-controller.R`
 
@@ -258,18 +218,6 @@ Use `--help` to view argument options:
 ```bash
 ./run-controller.R --help
 ```
-
-### Example Basins
-
-| Basin  |  Name |Zones | Description |
-|--------|-------|-------|-------------|
-| FSSO3  | Nehalem at Foss, OR|1     | Rain-dominated (CAMELS) |
-| SAKW1  | Sauk nr Sauk, WA|2     |  Rain/Snow-dominated, LAGK example (CAMELS)|
-| SFLN2  | Salmon Falls nr San Jacinto, NV|2     | Arrid basin, CONS_USE and CHANLOSS example |
-| WCHW1  | Sauk ab White Chuck, WA|2     | Rain/Snow-dominated, routing reach to SAKW1 (CAMELS) |
-| WGCM8  | MF Flathead nr W Glacier, MT|2     | Snow-dominated (CAMELS) |
-
-*supporting files are stored in the `runs/` directory
 
 #### CHANLOSS Model
 
