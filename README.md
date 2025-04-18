@@ -194,7 +194,7 @@ Once `run-controller.R` has been ran and the `pars_optimal.csv` file has been cr
 
 ### 3. `cv-plots.R`
 
-`cv-plots.R`, generates plots comparing CV metrics with results from a stationary bootstrap of the POR run. plots are output into `<dir>/cv_plots`
+`cv-plots.R`, generates plots comparing CV metrics with results from a stationary bootstrap of the POR run. Plots are output into `<dir>/cv_plots`.
 
     usage: cv-plot.R  [--] [--help] [--cleanup] [--dir DIR]
           [--basins BASINS] 
