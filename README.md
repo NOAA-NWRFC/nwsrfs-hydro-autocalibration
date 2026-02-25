@@ -1,7 +1,7 @@
 # NWRFC Autocalibration Framework
 
 ## Description
-This repository contains a version of the Northwest River Forecast Center (NWRFC) autocalibration tool for parameterizing the National Weather Service River Forecast System (NWSRFS) models using an evolving dynamically dimensioned search (EDDS). NWSRFS, originally developed in the late 1970s, remains a core component of the NWS Community Hydrologic Prediction System (CHPS).  This framework supports simultaneous calibration of a suite of NWSRFS models across multiple zones, including: SAC-SMA, SNOW17, Unit Hydrograph, LAGK, CHANLOSS, and CONS_USE.  See the [NWSRFS documentation](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) for more detail on each individual model.
+This repository contains a version of the Northwest River Forecast Center (NWRFC) autocalibration tool for parameterizing the National Weather Service River Forecast System (NWSRFS) models using an evolving dynamically dimensioned search (EDDS). NWSRFS, originally developed in the late 1970s, remains a core component of the NWS Community Hydrologic Prediction System (CHPS).  This framework supports simultaneous calibration of a suite of NWSRFS models across multiple zones, including: SAC-SMA, SNOW-17, Unit Hydrograph, LAG-K, CHANLOSS, and CONS_USE.  See the [NWSRFS documentation](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) for more detail on each individual model.
 
 **Language:** R  
 **Package Dependency:** [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models)  
@@ -46,7 +46,7 @@ There are five basin directories included in this repo that serve as examples wh
 | NWSLI ID  |  Name | USGS # | Zones | Description |
 |--------|-------|-------|-------|-------------|
 | FSSO3  | Nehalem at Foss, OR|14301000 |1     | Rain-dominated (CAMELS) |
-| SAKW1  | Sauk nr Sauk, WA|12189500 |2     |  Rain/Snow-dominated, LAGK example (CAMELS)|
+| SAKW1  | Sauk nr Sauk, WA|12189500 |2     |  Rain/Snow-dominated, LAG-K example (CAMELS)|
 | SFLN2  | Salmon Falls nr San Jacinto, NV|13105000 |2     | Arrid basin, CONS_USE and CHANLOSS example |
 | WCHW1  | Sauk ab White Chuck, WA|12186000|2     | Rain/Snow-dominated, routing reach to SAKW1 (CAMELS) |
 | WGCM8  | MF Flathead nr W Glacier, MT|12358500 |2     | Snow-dominated (CAMELS) |
@@ -89,13 +89,13 @@ Refer to the example basins in the `runs/` directory for the expected directory 
 
 **Optional Files:**
 - `forcing_validation_cv_[fold #]_[LID]-[zone #].csv`: Forcing data for cross-validation folds. Note that the data for each cross validation fold must be created manually by subsetting your data, but any number of folds is possible. as long as they split the data into even groups. 
-- `upflow_[RR LID].csv`: Upstream flow data for routing reach (LAGK model). A reach may have more than one routed upstream flow input. 
+- `upflow_[RR LID].csv`: Upstream flow data for routing reach (LAG-K model). A reach may have more than one routed upstream flow input. 
 
 **Notes:**
 - `LID`: 5-character basin ID (e.g., `FSSO3`). Note that this is an arbitrary basin identification code, you may swap in any unique 5 character alphanumeric identifier. 
 - `zone #`: Numeric zone ID (at least one required)
 - `fold #`: Numeric ID for cross-validation fold, starting at 1. 
-- `RR LID`: Upstream reach LID (e.g., `WCHW1` for LAGK optimization)
+- `RR LID`: Upstream reach LID (e.g., `WCHW1` for LAG-K optimization)
 - Need at least one daily or instanteous flow file for autocalibration 
 
 ## Autocalibration Steps
@@ -257,7 +257,7 @@ Each zone requires:
 
 ### AdjustQ
 
-For LAGK calibration, upstream flows are derived using [AdjustQ](https://publicwiki.deltares.nl/display/FEWSDOC/AdjustQ).  
+For LAG-K calibration, upstream flows are derived using [AdjustQ](https://publicwiki.deltares.nl/display/FEWSDOC/AdjustQ).  
 
 See [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models) for [equivalent Python code](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/blob/main/py-rfchydromodels/utilities/adjustq.py).
 
