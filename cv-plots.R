@@ -5,7 +5,7 @@
 
 xfun::pkg_load2(c('magrittr','dplyr', 'data.table', 'dtplyr','hydroGOF',
                    'lubridate','readr','tibble','ggthemes','stringr',
-                   'gtable','gridExtra','knitr','kableExtra','rfchydromodels',
+                   'gtable','gridExtra','knitr','kableExtra','nwsrfsr',
                    'tidyr','egg', 'git2r','reshape2','ncdf4','sf','ggmap',
                    'mapproj', 'plotly'))
 select <- dplyr::select

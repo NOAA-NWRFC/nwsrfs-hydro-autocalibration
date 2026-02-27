@@ -40,10 +40,10 @@ import::from(vctrs, vec_fill_missing)
 # !!To ensure correct parameter/forcings/upstream flow get mapped correctly to
 # intended zone/process. The default or optimal parameter file, forcing list, and
 # upstream flow list MUST be alphabetized by zone or basin names prior to call wrapper.r
-# or rfchydromodels functions.
+# or nwsrfsr functions.
 
 import::from(
-  rfchydromodels, sac_snow_uh, sac_snow_uh_lagk, lagk, sac_snow, sac_snow_states,
+  nwsrfsr, sac_snow_uh, sac_snow_uh_lagk, lagk, sac_snow, sac_snow_states,
   uh, consuse, chanloss, fa_nwrfc
 )
 source("wrappers.R")
@@ -342,6 +342,8 @@ tryCatch(
   }
 )
 
+#Export objective function
+dput(get(paste0(obj_fun,'_obj')),file=file.path(output_path,'objfun_code.R'))
 
 ########################################################################
 #################### Optimization

@@ -4,7 +4,7 @@
 This repository contains a version of the Northwest River Forecast Center (NWRFC) autocalibration tool for parameterizing the National Weather Service River Forecast System (NWSRFS) models using an evolving dynamically dimensioned search (EDDS). NWSRFS, originally developed in the late 1970s, remains a core component of the NWS Community Hydrologic Prediction System (CHPS).  This framework supports simultaneous calibration of a suite of NWSRFS models across multiple zones, including: SAC-SMA, SNOW-17, Unit Hydrograph, LAG-K, CHANLOSS, and CONS_USE.  See the [NWSRFS documentation](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) for more detail on each individual model.
 
 **Language:** R  
-**Package Dependency:** [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models)  
+**Package Dependency:** [nwsrfs-hydro-models R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/nwsrfs_r)  
 
 
 ## Prerequisites
@@ -15,12 +15,12 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
 
         install.packages(c('xfun','import','devtools'))
 
-3. Install the `rfchydromodels` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
+3. Install the `nwsrfsr` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
     
 From R:
 
 ```R
-devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='rfchydromodels')
+devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='nwsrfs_r')
 ```
 
 or from the command line:
@@ -28,7 +28,7 @@ or from the command line:
 ```bash
 git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-models.git
 cd nwsrfs-hydro-models
-R CMD INSTALL rfchydromodels
+R CMD INSTALL nwsrfsr
 ```
 
 4. The autocalibration scripts will try to install a number of R packages when run. If this fails you may need to install the packages manually. 
@@ -259,7 +259,7 @@ Each zone requires:
 
 For LAG-K calibration, upstream flows are derived using [AdjustQ](https://publicwiki.deltares.nl/display/FEWSDOC/AdjustQ).  
 
-See [nwrfc-hydro R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models) for [equivalent Python code](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/blob/main/py-rfchydromodels/utilities/adjustq.py).
+See [nwsrfs-hydro-models](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models) for equivalent [R](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/nwsrfs_r) or [Python](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/nwsrfs_py) utility as part of their respective packages.
 
 ### Forcing Climatological Corrections
 

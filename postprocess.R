@@ -44,9 +44,9 @@ import::from(vctrs, vec_fill_missing)
 # !!To ensure correct parameter/forcings/upstream flow get mapped correctly to
 # intended zone/process. The default or optimal parameter file, forcing list, and
 # upstream flow list MUST be alphabetized by zone or basin names prior to call wrapper.r
-# or rfchydromodels functions
+# or nwsrfsr functions
 import::from(
-  rfchydromodels, sac_snow_uh, sac_snow, sac_snow_states, lagk, sac_snow_uh_lagk, lagk,
+  nwsrfsr, sac_snow_uh, sac_snow, sac_snow_states, lagk, sac_snow_uh_lagk, lagk,
   forcing_adjust_map_pet_ptps, forcing_adjust_mat, uh, pet_hs, uh2p_get_scale, uh2p_cfs_in,
   consuse, fa_nwrfc, fa_adj_nwrfc, chanloss, rsnwelev
 )
