@@ -278,7 +278,8 @@ In the NWRFC autocalibration scheme, mid-month climatological adjustment factors
 
 Please cite the following work when using this tool:
 
-Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the Northwest River Forecast Center." Unpublished manuscript, Submitted 2025, [Preprint](https://eartharxiv.org/repository/view/8993/)
+Walters, G., Bracken, C., et al., "A comprehensive calibration framework for the Northwest River Forecast Center." Journal of the American Water Resources Association (JAWRA), accepted for publication in 2026. [Preprint](https://eartharxiv.org/repository/view/8993/)
+
 
 If adapting this code, please credit this repository as the original source. 
 
