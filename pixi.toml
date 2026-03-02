@@ -1,0 +1,11 @@
+[workspace]
+authors = ["Cameron Bracken <32280+cameronbracken@users.noreply.github.com>"]
+channels = ["conda-forge"]
+name = "nwsrfs-hydro-autocalibration"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+r-renv = ">=1.1.7,<2"
