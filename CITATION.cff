@@ -9,6 +9,10 @@ authors:
     given-names: "Cameron"
     orcid: "https://orcid.org/0000-0003-1917-402X"
 repository-code: "https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.18829935"
+    description: "Sample calibration input data archived on Zenodo"
 preferred-citation:
   type: article
   title: "A comprehensive calibration framework for the Northwest River Forecast Center"
@@ -23,3 +27,14 @@ preferred-citation:
   journal: "Journal of the American Water Resources Association"
   url: "https://eartharxiv.org/repository/view/8993/"
   notes: "Accepted for publication."
+references:
+  - type: software
+    title: "NWSRFS Operational Hydrology Models (nwsrfs-hydro-models)"
+    authors:
+      - family-names: "Walters"
+        given-names: "Geoffrey"
+        orcid: "https://orcid.org/0009-0009-3804-8898"
+      - family-names: "Bracken"
+        given-names: "Cameron"
+        orcid: "https://orcid.org/0000-0003-1917-402X"
+    repository-code: "https://github.com/NOAA-NWRFC/nwsrfs-hydro-models"

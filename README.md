@@ -53,6 +53,10 @@ There are five basin directories included in this repo that serve as examples wh
 
 *supporting files are stored in the `runs/` directory
 
+**Sample Data**: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18829935.svg)](https://doi.org/10.5281/zenodo.18829935)
+
+Input data for the example basins is archived on Zenodo for reproducibility. Download and extract into the `runs/` directory to run the examples.
+
 ### Example Workflow 
  We recommend that you complete at least 4 cross validation runs in addition to the full period of record run to evaluate the calibration for any potential issues.
  
