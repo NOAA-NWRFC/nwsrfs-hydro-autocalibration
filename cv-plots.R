@@ -3,27 +3,22 @@
 # Written by Geoffrey Walters and Cameron Bracken (2025)
 # Please see the LICENSE file for license information
 
-xfun::pkg_load2(c('magrittr','dplyr', 'data.table', 'dtplyr','hydroGOF',
-                   'lubridate','readr','tibble','ggthemes','stringr',
-                   'gtable','gridExtra','knitr','kableExtra','nwsrfsr',
-                   'tidyr','egg', 'git2r','reshape2','ncdf4','sf','ggmap',
-                   'mapproj', 'plotly'))
-select <- dplyr::select
-xfun::pkg_attach2('ggplot2')
-import::from(dplyr, filter, select, summarise, group_by, ungroup, mutate,left_join,
-             slice_max, rename, pull,rename,mutate_if,n)
-import::from(plotly, ggplotly)
-import::from(stringr, str_detect, str_subset)
-import::from(argparser,arg_parser,add_argument,parse_args)
-import::from(crayon, inverse, green)
-import::from(data.table,rbindlist)
-import::from(readr,read_csv)
-import::from(hydroGOF,NSE,pbias,rPearson,KGE)
-import::from(tibble, tibble, as_tibble)
-import::from(tidyr, pivot_longer, pivot_wider)
-import::from(dplyr, bind_rows)
-import::from(parallel,detectCores,makeCluster,clusterSetRNGStream,
-             clusterCall,stopCluster)
+box::use(
+  dplyr[filter, select, summarise, group_by, ungroup, mutate, left_join,
+        slice_max, rename, pull, mutate_if, n, bind_rows],
+  data.table[rbindlist],
+  ggplot2[...],
+  plotly[ggplotly],
+  stringr[str_detect, str_subset],
+  argparser[arg_parser, add_argument, parse_args],
+  crayon[inverse, green, red, blue],
+  readr[read_csv],
+  hydroGOF[NSE, pbias, rPearson, KGE],
+  tibble[tibble, as_tibble],
+  tidyr[pivot_longer, pivot_wider],
+  parallel[detectCores, makeCluster, clusterSetRNGStream,
+           clusterCall, stopCluster]
+)
 
 parser = arg_parser("Create CV Plots", hide.opts = TRUE)
 # by default ArgumentParser will add an help option

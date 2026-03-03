@@ -3,51 +3,43 @@
 # Written by Cameron Bracken and Geoffrey Walters (2025)
 # Please see the LICENSE file for license information
 
-# install.packages(c('xfun','import','devtools'))
-xfun::pkg_load2(
-  "magrittr", "dplyr", "data.table", "dtplyr", "hydroGOF",
-  "digest", "lubridate", "readr", "tibble", "ggthemes",
-  "crayon", "argparser", "rtop"
+box::use(
+  dplyr[filter, select, summarise, group_by, ungroup, mutate,
+        arrange, lag, lead, full_join, right_join, bind_rows],
+  data.table[as.data.table, data.table, fread, merge.data.table, copy,
+             melt.data.table, rbindlist, dcast.data.table, fwrite, setnames, nafill],
+  dtplyr[lazy_dt],
+  rtop[sceua],
+  hydroGOF[gof, NSE, rmse, mNSE, rSD, pbias, rPearson, KGE, KGElf, KGEnp],
+  digest[digest],
+  lubridate[ymd_hms],
+  readr[read_delim, read_csv, cols],
+  tibble[tibble, as_tibble, rownames_to_column],
+  ggplot2[...],
+  ggthemes[colorblind_pal],
+  crayon[`%+%`, green, bold, bgGreen, blue, inverse, red, bgCyan],
+  stringr[str_subset, str_detect],
+  argparser[arg_parser, add_argument, parse_args],
+  tidyr[fill],
+  parallel[detectCores, makeCluster, clusterSetRNGStream,
+           clusterCall, nextRNGStream, stopCluster],
+  vctrs[vec_fill_missing],
+  nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, sac_snow, sac_snow_states,
+          uh, consuse, chanloss, fa_nwrfc]
 )
-xfun::pkg_attach2("ggplot2")
-import::from(
-  dplyr, filter, select, summarise, group_by, ungroup, mutate,
-  arrange, lag, lead, full_join, right_join, bind_rows
-)
-select <- dplyr::select
-import::from(
-  data.table, as.data.table, data.table, fread, merge.data.table, copy,
-  melt.data.table, rbindlist, dcast.data.table, fwrite, setnames, nafill
-)
-import::from(dtplyr, lazy_dt)
-import::from(rtop, sceua)
-import::from(hydroGOF, gof, NSE, rmse, mNSE, rSD, pbias, rPearson, KGE, KGElf, KGEnp)
-import::from(digest, digest)
-import::from(lubridate, ymd_hms)
-import::from(readr, read_delim, read_csv, cols)
-import::from(tibble, tibble, as_tibble, rownames_to_column)
-import::from(ggthemes, colorblind_pal)
-import::from(crayon, "%+%", green, bold, bgGreen, blue, inverse, red, bgCyan)
-import::from(stringr, str_subset, str_detect)
-import::from(argparser, arg_parser, add_argument, parse_args)
-import::from(tidyr, fill)
-import::from(
-  parallel, detectCores, makeCluster, clusterSetRNGStream,
-  clusterCall, nextRNGStream, stopCluster
-)
-import::from(vctrs, vec_fill_missing)
+
 ##############################################################################
 # !!To ensure correct parameter/forcings/upstream flow get mapped correctly to
 # intended zone/process. The default or optimal parameter file, forcing list, and
 # upstream flow list MUST be alphabetized by zone or basin names prior to call wrapper.r
 # or nwsrfsr functions.
 
-import::from(
-  nwsrfsr, sac_snow_uh, sac_snow_uh_lagk, lagk, sac_snow, sac_snow_states,
-  uh, consuse, chanloss, fa_nwrfc
+# Local modules
+box::use(
+  ./wrappers[model_wrapper, update_params, update_cu_params,
+             inst_to_ave, run_controller_edds],
+  obj_funs = ./obj_fun
 )
-source("wrappers.R")
-source("obj_fun.R")
 
 parser <- arg_parser("Auto-calibration run controller", hide.opts = TRUE)
 
@@ -108,7 +100,7 @@ if (!file.exists(basin_dir)) {
 }
 
 # CHECK IF OBJECTIVE FUNCTION EXISTS
-if (!exists(paste0(obj_fun, "_obj"))) {
+if (is.null(obj_funs[[paste0(obj_fun, "_obj")]])) {
   stop("objective function argument chosen does not exist, exiting")
 }
 # CHECK IF INST OBSERVED EXIST AND IF OBJECTIVE FUNCTION IS USING IT
@@ -330,7 +322,8 @@ if (!grepl("_NULL$", obj_fun) & sum(!is.na(obs_inst$flow_cfs)) <= 1) {
 # Test objective function for any errors
 tryCatch(
   {
-    obj_test <- get(paste0(obj_fun, "_obj"))(obs_daily |> mutate(sim_flow_cfs = flow_cfs + 1),
+    obj_fun_fn <- obj_funs[[paste0(obj_fun, "_obj")]]
+    obj_test <- obj_fun_fn(obs_daily |> mutate(sim_flow_cfs = flow_cfs + 1),
       if (logic_inst) {
         obs_inst |> mutate(sim_flow_cfs = flow_cfs + 1)
       } else {
@@ -343,7 +336,7 @@ tryCatch(
 )
 
 #Export objective function
-dput(get(paste0(obj_fun,'_obj')),file=file.path(output_path,'objfun_code.R'))
+dput(obj_funs[[paste0(obj_fun, '_obj')]], file = file.path(output_path, 'objfun_code.R'))
 
 ########################################################################
 #################### Optimization

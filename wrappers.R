@@ -1,6 +1,23 @@
 # Written by Cameron Bracken and Geoffrey Walters (2025)
 # Please see the LICENSE file for license information
 
+box::use(
+  stats[runif, rnorm, setNames],
+  dplyr[filter, select, summarise, group_by, ungroup, mutate,
+        lead, right_join, bind_rows],
+  data.table[as.data.table, data.table, merge.data.table, copy,
+             rbindlist, nafill],
+  tibble[as_tibble],
+  tidyr[fill],
+  parallel[makeCluster, clusterSetRNGStream, clusterCall,
+           nextRNGStream, stopCluster],
+  hydroGOF[NSE, pbias, rPearson, KGE],
+  nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
+          consuse, fa_nwrfc],
+  obj_funs = ./obj_fun
+)
+
+#' @export
 update_params <- function(p, p_names, default_pars) {
   # nl = nml::read_nml('namelist.HHWM8')
   # n_hrus = nl$INIT_CONTROL$n_hrus
@@ -67,6 +84,7 @@ update_params <- function(p, p_names, default_pars) {
   updated_pars2[order(zone, name)]
 }
 
+#' @export
 update_cu_params <- function(pars, zone1_name, cu_zones) {
   zone1_pars <- pars[zone == zone1_name]
 
@@ -89,6 +107,7 @@ update_cu_params <- function(pars, zone1_name, cu_zones) {
   pars[order(zone, name)]
 }
 
+#' @export
 inst_to_ave <- function(forcing, sim_flow_cfs, agg_to_daily = FALSE) {
   sim <- as.data.table(forcing[[1]][, c("year", "month", "day", "hour")])
 
@@ -108,6 +127,7 @@ inst_to_ave <- function(forcing, sim_flow_cfs, agg_to_daily = FALSE) {
   }
 }
 
+#' @export
 model_wrapper <- function(p, p_names, dt_hours, default_pars, obs_daily, obs_inst,
                           forcing_raw, upflow, obj_fun, n_zones, cu_zones,
                           return_flow = FALSE) {
@@ -220,11 +240,13 @@ model_wrapper <- function(p, p_names, dt_hours, default_pars, obs_daily, obs_ins
 
   # browser()
 
-  obj <- get(paste0(obj_fun, "_obj"))(results_daily, results_inst)
+  obj_fun_fn <- obj_funs[[paste0(obj_fun, "_obj")]]
+  obj <- obj_fun_fn(results_daily, results_inst)
 
   if (return_flow) results_daily else c(obj_fun = obj)
 }
 
+#' @export
 run_controller_edds <- function(lower, upper, basin, dt_hours, default_pars,
                                 obs_daily, obs_inst, forcing, upflow = NULL,
                                 obj_fun = "rmse", n_zones, cu_zones = character(0),
@@ -263,7 +285,11 @@ run_controller_edds <- function(lower, upper, basin, dt_hours, default_pars,
 
 
 # Evolving Dynamically Dimensioned Search (EDDS)
+#' @export
 ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
+  # Unpack ... args into local scope so clusterCall can reference them
+  list2env(list(...), environment())
+
   # Parallel Registration
   my_cluster <- makeCluster(n_cores, type = "FORK") #' PSOCK'
   # Seeding using L'Ecuyer-CMRG
@@ -271,7 +297,7 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)
   # Set a fresh random seed for the master process
   set.seed(sample.int(.Machine$integer.max, 1))
-  (stream <- .Random.seed)
+  (stream <- globalenv()$.Random.seed)
 
   # Step 1: Check inputs
   if (!is.function(fn)) {
@@ -379,7 +405,7 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
       t_iter = t_iter,
       p_iter = p_iter,
       r = 0.2,
-      p_names = names(lower),
+      p_names = p_names,
       dt_hours = dt_hours,
       default_pars = default_pars,
       obs_daily = obs_daily,
@@ -453,11 +479,12 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
 #' stochastic optimization of computationally expensive objective functions. The
 #' algorithm gradually shifts from global to local search.
 
+#' @export
 dds <- function(fn, p_bounds, f_best, p_best, f_trace, p_trace, c_iter,
                 t_iter = 10000, p_iter = 100, r = 0.2, ...) {
   i <- 1
   # Capture seed for verification
-  worker_seed <- .Random.seed
+  worker_seed <- globalenv()$.Random.seed
 
   # Iteration loop
   while (i < (p_iter + 1)) {
