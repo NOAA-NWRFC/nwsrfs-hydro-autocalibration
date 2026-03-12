@@ -48,9 +48,7 @@ install.packages(c("dplyr", "data.table", "dtplyr", "hydroGOF", "digest",
 
 **NOTES:**
 
-1. Due to its use of fork-based parallelism, the tool is not compatible with Windows systems.
-
-2. The code has been tested only with a 6-hour timestep. Use with other timesteps may require additional configuration and validation.
+The code has been tested only with a 6-hour timestep. Use with other timesteps may require additional configuration and validation.
 
 ## Example Calibrations
 There are five basin directories included in this repo that serve as examples which utilize all the features of the auto calibration tool.

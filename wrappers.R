@@ -9,8 +9,8 @@ box::use(
              rbindlist, nafill],
   tibble[as_tibble],
   tidyr[fill],
-  parallel[makeCluster, clusterSetRNGStream, clusterCall,
-           nextRNGStream, stopCluster],
+  parallel[makeCluster, clusterSetRNGStream, clusterCall, 
+             clusterEvalQ, clusterExport, stopCluster],
   hydroGOF[NSE, pbias, rPearson, KGE],
   nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
           consuse, fa_nwrfc],
@@ -291,7 +291,9 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
   list2env(list(...), environment())
 
   # Parallel Registration
-  my_cluster <- makeCluster(n_cores, type = "FORK") #' PSOCK'
+  # Use FORK on Linux/Mac for maximum speed, fallback to PSOCK for Windows compatibility
+  os_type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
+  my_cluster <- makeCluster(n_cores, type = os_type)
   # Seeding using L'Ecuyer-CMRG
   RNGkind("L'Ecuyer-CMRG")
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)
@@ -299,6 +301,33 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
   set.seed(sample.int(.Machine$integer.max, 1))
   (stream <- globalenv()$.Random.seed)
 
+  #Export box modules to the clusters
+  master_wd <- getwd()
+  clusterExport(my_cluster, "master_wd", envir = environment())
+  clusterEvalQ(my_cluster, {
+    setwd(master_wd)
+    box::use(
+      stats[runif, rnorm, setNames],
+      dplyr[filter, select, summarise, group_by, ungroup, mutate,
+            lead, right_join, bind_rows],
+      data.table[as.data.table, data.table, merge.data.table, copy,
+                 rbindlist, nafill],
+      tibble[as_tibble],
+      tidyr[fill],
+      hydroGOF[NSE, pbias, rPearson, KGE],
+      nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
+              consuse, fa_nwrfc],
+      obj_funs = ./obj_fun
+    )
+  })
+  
+  #Export wrapper functions to the clusters
+  clusterExport(
+    cl = my_cluster,
+    varlist = c("update_params", "update_cu_params", "inst_to_ave", "model_wrapper"),
+    envir = environment()
+  )
+  
   # Step 1: Check inputs
   if (!is.function(fn)) {
     stop(paste0("'fn' must be a function"))
@@ -433,7 +462,7 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
     # if (!exists("stream") || length(stream) < 2 || !is.numeric(stream)) {
     #   stop("Invalid RNG state detected in `stream` before calling nextRNGStream()")
     # }
-    nextRNGStream(stream)
+    #nextRNGStream(stream)
 
     # Add a message regarding iteration and best run if i is divisable by 100
     if (i %% 100 == 0) {
