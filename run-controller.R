@@ -45,9 +45,8 @@ parser <- arg_parser("Auto-calibration run controller", hide.opts = TRUE)
 parser <- add_argument(parser, "--dir", help = "Input directory path")
 parser <- add_argument(parser, "--basin", help = "Basin name")
 parser <- add_argument(parser, "--objfun", default = "nselognse_NULL", help = "Objective function name")
-parser <- add_argument(parser, "--optimizer", default = "edds", help = "Optimzer to use {edds [default],pso,dds}")
 parser <- add_argument(parser, "--cvfold", default = NA_integer_, help = "CV fold to run (integer 1-4)")
-parser <- add_argument(parser, "--num_cores", default = "FULL", help = "Number of cores to allocate for run, FULL uses all availavble cores -2")
+parser <- add_argument(parser, "--num_cores", default = "FULL", help = "Number of cores to allocate for run, FULL uses all available cores -2")
 parser <- add_argument(parser, "--por", flag = TRUE, help = "Do a period of record run [default]")
 parser <- add_argument(parser, "--overwrite", flag = TRUE, help = "Don't create new results dir, overwrite the first exising one", short = "-ov")
 parser <- add_argument(parser, "--lite", flag = TRUE, help = "Testing run with 1/2 the total optimizer iteration")
@@ -88,7 +87,8 @@ if (suppressWarnings(!is.na(as.numeric(n_cores)))) n_cores <- as.numeric(n_cores
 if (is.character(n_cores) & toupper(n_cores) != "FULL") {
   stop("num_cores argument not understood, exiting")
 } else if ((is.character(n_cores) & toupper(n_cores) == "FULL") | (n_cores > detectCores() - 2)) {
-  n_cores <- detectCores() - 2
+  #If system has less than 4 cores, makes special provision
+  n_cores <- ifelse(detectCores() < 4,min(detectCores(),2),detectCores() - 2)
 }
 
 basin_dir <- file.path(output_dir, basin)
