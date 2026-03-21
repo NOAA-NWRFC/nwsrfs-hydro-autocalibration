@@ -4,20 +4,17 @@
 # Please see the LICENSE file for license information
 
 box::use(
-  dplyr[filter, select, summarise, group_by, ungroup, mutate, left_join,
-        slice_max, rename, pull, mutate_if, n, bind_rows],
+  argparser[add_argument, arg_parser, parse_args],
+  crayon[blue, green, inverse, red],
   data.table[rbindlist],
-  ggplot2[...],
-  plotly[ggplotly],
-  stringr[str_detect, str_subset],
-  argparser[arg_parser, add_argument, parse_args],
-  crayon[inverse, green, red, blue],
+  dplyr[bind_rows, filter, group_by, mutate, mutate_if, n, pull, select, slice_max, summarise],
+  hydroGOF[KGE, NSE, pbias, rPearson],
+  parallel[clusterCall, clusterEvalQ, clusterExport, clusterSetRNGStream, detectCores, makeCluster, stopCluster],
   readr[read_csv],
-  hydroGOF[NSE, pbias, rPearson, KGE],
-  tibble[tibble, as_tibble],
-  tidyr[pivot_longer, pivot_wider],
-  parallel[detectCores, makeCluster, clusterSetRNGStream,
-           clusterCall, stopCluster]
+  stringr[str_detect, str_subset],
+  tibble[as_tibble],
+  tidyr[pivot_longer],
+  ggplot2[...]
 )
 
 parser = arg_parser("Create CV Plots", hide.opts = TRUE)
@@ -75,7 +72,7 @@ for(basin in basins){
                 'validation_daily.csv',
                 'optimal_6hr_inst.csv',
                 'validation_6hr_inst.csv',
-                'run_settings.txt') %in% 
+                'run_settings.txt') %in%
               list.files(file.path(basin_dir,cv_results_dir[i]),'*'))){
         cat('\t',paste0('Not using ',cv_results_dir[i],' as no postprocessing files'),'\n')
         cv_results_dir = cv_results_dir[-i]
@@ -108,7 +105,7 @@ for(basin in basins){
     for(j in length(por_results_dir):1){
       if(!all(c('optimal_daily.csv',
                 'optimal_6hr_inst.csv',
-                'run_settings.txt') %in% 
+                'run_settings.txt') %in%
               list.files(file.path(basin_dir,por_results_dir[i]),'*'))){
         cat('\t',paste0('Not using ',por_results_dir[j],' as no postprocessing files'),'\n')
         por_results_dir = por_results_dir[-j]
@@ -122,25 +119,25 @@ for(basin in basins){
     por_results_dir = NULL
     next
   }
-  
+
   obj_fun_check = c()
   #detect if all the cv and por runs are using the same objective function
   for(check_dir in c(cv_results_dir,por_results_dir)){
     #Search for --PARAMETER LIMITS-- text to be flexible with older versions
     run_summary_text = readLines(file.path(basin_dir, check_dir, 'run_settings.txt'))
     run_summary_length = grep("--PARAMETER LIMITS--",run_summary_text,fixed=TRUE) - 2
-    
+
     run_setting_check = read.table(text=run_summary_text, sep = ':',nrows=run_summary_length,
                                    col.names=c('Run','Setting'))[-(1:2),]
-    obj_fun_check = c(obj_fun_check, 
+    obj_fun_check = c(obj_fun_check,
                       run_setting_check[run_setting_check$Run=='Objective Function','Setting'])
   }
-  
+
   if(length(unique(obj_fun_check))>1){
     cat(inverse$red('\t',paste0('!!Skipping ',basin,' because not all run used the same objective function!!')),'\n')
     next
   }
-  
+
   #Check if objective function is using subdaily flow
   logic_inst = ifelse(!grepl("_NULL$", unique(obj_fun_check)),TRUE,FALSE)
 
@@ -256,16 +253,16 @@ for(basin in basins){
       unlink(file.path(basin_dir,d_dir), recursive = TRUE)
     }
   }
-  
+
   #########################################
   #Format 95th percentile stats
   ########################################
-  
+
   #Identify if we are using the daily or instantaneous observed data csv
   peak_file = file.path(basin_dir, paste0(ifelse(logic_inst,
                                                  'flow_instantaneous_',
                                                  'flow_daily_'),basin,'.csv'))
-  
+
   #Get teh 95th percentile threshold
   peak_th =  read_csv(peak_file, show = FALSE) |>
     as_tibble() |>
@@ -273,8 +270,8 @@ for(basin in basins){
     filter(wyear > 1981) |>
     pull('flow_cfs') |>
     quantile(.95,na.rm = TRUE,names = FALSE)
-  
-  
+
+
   if(logic_inst){
     #If using instantaneous data for the 95th percentile, load the cv and por
     #best run's *_6hr_inst.csv files
@@ -295,13 +292,13 @@ for(basin in basins){
     }
     #combine all the instantaneous cv data to a single datatable
     cv_results_runs_best_95th = rbindlist(cv_results_runs_best_95th_list)
-    
+
     #get instantaneous por data
     por_results_runs_best_95th= read_csv(file.path(basin_dir,por_results_best,'optimal_6hr_inst.csv'), show = FALSE) |>
       mutate(period = 'calb',
              run = por_results_best,
              wyear=ifelse(month>=10,year+1,year)) |>
-      filter(wyear > 1981 & flow_cfs>=peak_th) 
+      filter(wyear > 1981 & flow_cfs>=peak_th)
   }else{
     #If using daily data for the 95th percentile, use the already loaded and
     #formated cv and por best runs
@@ -311,7 +308,7 @@ for(basin in basins){
     por_results_runs_best_95th = por_results_runs_best |>
       filter(flow_cfs>=peak_th)
   }
-  
+
   ##############################################
   #Calculate CV NNSE, Pbias, R2 and KGE scores
   #############################################
@@ -372,7 +369,7 @@ for(basin in basins){
     pivot_longer(-c(fold),names_to ='metric') |>
     mutate(type = 'CV \n run',
            temporal = 'Seasonal Volume\n Apr-Sep')
-    
+
   #Metrics for january-july water supply statistics
   cv_jan_jul_ws = cv_results_runs_best |>
     filter(month %in% 1:7 & period == 'valid') |>
@@ -392,7 +389,7 @@ for(basin in basins){
     pivot_longer(-c(fold),names_to ='metric') |>
     mutate(type = 'CV \n run',
            temporal = 'Seasonal Volume\n Jan-Jul')
-  
+
   #Need a try/catch for cases where inst data is used and there is none available
   #for the cv period
   tryCatch({
@@ -412,7 +409,7 @@ for(basin in basins){
              temporal = paste('Q>.95 Highflows\n',ifelse(logic_inst,'Instantaneous','Daily')))
   },error = function(e){cv_q95 <<-NULL
   })
-    
+
   #combine all cv validation metric performance scores for different temporal periods
   cv_perfomance = rbind(cv_all_daily, cv_monthly_binned, cv_apr_sep_ws,
                      cv_jan_jul_ws,cv_q95)
@@ -420,34 +417,34 @@ for(basin in basins){
   ##############################################
   #POR run Stationary Bootstrappings
   #############################################
-  
+
   #Filter out non complete wy
-  wy_population = por_results_runs_best |> 
-    group_by(wyear) |> 
+  wy_population = por_results_runs_best |>
+    group_by(wyear) |>
     summarise(count=n(),.groups='drop') |>
     filter(360<count) |>
     pull(wyear)
-  
-  cv_avg_length = cv_results_runs_best |> 
-    mutate(wyear=ifelse(month>=10,year+1,year)) |> 
+
+  cv_avg_length = cv_results_runs_best |>
+    mutate(wyear=ifelse(month>=10,year+1,year)) |>
     filter(period == 'valid' & wyear %in% wy_population ) |>
     filter(month == 1 & day == 1) |>
     group_by(fold) |>
     summarise(wy_count=n(),.groups='drop') |>
     summarise(avg_wy_len = round(mean(wy_count),0)) |>
     pull(avg_wy_len)
- 
+
   #Stationary Bootstrap Looper Function ######
   bs_looper = function(sim, sim_95th, wy_pool, sample_size,inst_logic,bs_iter=1000){
-  
+
     bs_performance_worker = list()
-    
+
     for(i in 1:bs_iter){
       #Get random sample of 10 wy
       sample_wy = sample(wy_pool,sample_size)
       sample_sim = sim |> filter(wyear %in% sample_wy)
       sample_sim_95th = sim_95th |> filter(wyear %in% sample_wy)
-      
+
       #Metrics using all daily data
       all_daily = sample_sim |>
         group_by(period) |>
@@ -462,7 +459,7 @@ for(basin in basins){
         pivot_longer(-c(period),names_to ='metric') |>
         mutate(type = 'Stationary \nBootstrapping',
                temporal = 'All Daily')
-      
+
       #Metrics for monthly binned statistics
       monthly_binned = sample_sim |>
         group_by(period,month) |>
@@ -482,7 +479,7 @@ for(basin in basins){
         pivot_longer(-c(period),names_to ='metric') |>
         mutate(type = 'Stationary \nBootstrapping',
                temporal = 'Monthly Binned')
-      
+
       #Metrics for April-September water supply statistics
       apr_sep_ws = sample_sim |>
         filter(month %in% 4:9) |>
@@ -502,7 +499,7 @@ for(basin in basins){
         pivot_longer(-c(period),names_to ='metric') |>
         mutate(type = 'Stationary \nBootstrapping',
                temporal = 'Seasonal Volume\n Apr-Sep')
-      
+
       #Metrics for january-july water supply statistics
       jan_jul_ws = sample_sim |>
         filter(month %in% 1:7) |>
@@ -522,7 +519,7 @@ for(basin in basins){
         pivot_longer(-c(period),names_to ='metric') |>
         mutate(type = 'Stationary \nBootstrapping',
                temporal = 'Seasonal Volume\n Jan-Jul')
-      
+
       #Need a try/catch for cases where inst data is used and there is none available
       #for sampled water years
       tryCatch({
@@ -541,28 +538,48 @@ for(basin in basins){
                  temporal = paste('Q>.95 Highflows\n',ifelse(inst_logic,'Instantaneous','Daily')))
       },error = function(e){q95 <<-NULL
       })
-      
+
       #combine all cv validation metric performance scores for different temporal periods
       bs_iter_perfomance = rbind(all_daily, monthly_binned, apr_sep_ws,
                             jan_jul_ws,q95)
-      
-      bs_performance_worker = rbind(bs_performance_worker, bs_iter_perfomance)
+
+      bs_performance_worker[[i]] = bs_iter_perfomance
     }
-  return(bs_performance_worker)
+  return(bind_rows(bs_performance_worker))
   }
-  
+
   #Parallel Registration
-  n_cores = ifelse(detectCores()-2>=8,8,detectCores()-2)
-  my_cluster = makeCluster(n_cores,type='FORK') #'PSOCK'
+  n_cores = if(detectCores()-2>=8){
+      8
+    } else if (detectCores()<=2){
+      detectCores()
+    } else {
+      detectCores()-2
+    }
+  os_type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
+  my_cluster <- makeCluster(n_cores, type = os_type)
   # Seeding using L'Ecuyer-CMRG, isseed = NULL doc states initializes random process
   RNGkind("L'Ecuyer-CMRG")
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)
   # Set a fresh random seed for the master process
   set.seed(sample.int(.Machine$integer.max, 1))
-  (stream <- .Random.seed)
-  
+  (stream <- globalenv()$.Random.seed)
+
+  #Export box modules to the clusters
+  master_wd <- getwd()
+  clusterExport(my_cluster, "master_wd", envir = environment())
+  clusterEvalQ(my_cluster, {
+    setwd(master_wd)
+    box::use(
+      dplyr[bind_rows, filter, group_by, mutate, select, summarise],
+      hydroGOF[KGE, NSE, pbias, rPearson],
+      tidyr[pivot_longer]
+    )
+  })
+
+
   cat('\t Performing Stationary Bootstrapping..... ')
-  
+
   bs_parallel = clusterCall(cl = my_cluster,
                               bs_looper,
                               sim = por_results_runs_best,
@@ -571,20 +588,21 @@ for(basin in basins){
                               sample_size = cv_avg_length,
                               inst_logic = logic_inst,
                               bs_iter = 1000)
-    
-    
+
+
+  # Stop the registered parallel forks
   stopCluster(cl = my_cluster)
-  
-  bs_performance= bind_rows(bs_parallel) |> 
+
+  bs_performance= bind_rows(bs_parallel) |>
     select(-period) |>
     mutate(fold = 'BS')
-  
+
   cat('Done \n')
-  
+
   #combine all cv runs and stationary bootstrapping performance results
   master_performance  = rbind(bs_performance,cv_perfomance)
 
- 
+
   #change columns from character to factors
   #master_degrade$type = as.factor(master_degrade$type)
   master_performance =  master_performance |> mutate_if(is.character,as.factor)
