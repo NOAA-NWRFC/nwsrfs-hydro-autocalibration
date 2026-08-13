@@ -47,6 +47,7 @@ parser <- add_argument(parser, "--num_cores", default = "FULL", help = "Number o
 parser <- add_argument(parser, "--por", flag = TRUE, help = "Do a period of record run [default]")
 parser <- add_argument(parser, "--overwrite", flag = TRUE, help = "Don't create new results dir, overwrite the first exising one", short = "-ov")
 parser <- add_argument(parser, "--lite", flag = TRUE, help = "Testing run with 1/2 the total optimizer iteration")
+parser <- add_argument(parser, "--iterations", default = NA_integer_, help = "Override the optimizer iteration count, for smoke tests only, a calibration this short is not usable")
 
 
 args <- parse_args(parser)
@@ -75,6 +76,11 @@ overwrite <- args$overwrite
 lite <- args$lite
 n_cores <- args$num_cores
 dt_hours <- 6
+
+# NA means use the standard count, 5000, or 2500 with --lite
+t_iter <- as.integer(args$iterations)
+if (!is.na(t_iter) && t_iter < 1) stop("iterations must be a positive integer, exiting")
+if (is.na(t_iter)) t_iter <- if (lite) 2500L else 5000L
 
 # SET UP NUMBER OF CORES TO USE FOR OPTIMIZATION
 # if a number is passed then convert from string to number
@@ -125,7 +131,7 @@ settings_message <- paste0(settings_message, "Basin: ", basin, "\n")
 settings_message <- paste0(settings_message, "Input Directory: ", output_dir, "\n")
 settings_message <- paste0(settings_message, "Objective Function: ", obj_fun, "\n")
 settings_message <- paste0(settings_message, "Optimizer: ", optimizer, "\n")
-settings_message <- paste0(settings_message, "Iterations: ", ifelse(lite, "2500", "5000"), "\n")
+settings_message <- paste0(settings_message, "Iterations: ", t_iter, "\n")
 settings_message <- paste0(settings_message, "Cores Utilized for Parallelization: ", n_cores, "\n")
 settings_message <- paste0(settings_message, "Cross-Validation: ", cv, "\n")
 if (cv) {
@@ -342,7 +348,7 @@ ptm <- proc.time()
 
 out <- run_controller_edds(
   lower, upper, basin, dt_hours, default_pars, obs_daily, obs_inst,
-  forcing_raw, upflow, obj_fun, n_zones, cu_zones, n_cores, lite
+  forcing_raw, upflow, obj_fun, n_zones, cu_zones, n_cores, lite, t_iter
 )
 
 p_optimal <- out["p_best"][[1]]
