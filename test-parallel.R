@@ -27,7 +27,8 @@
 
 box::use(
   parallel[clusterCall, clusterEvalQ, clusterExport, clusterSetRNGStream,
-           detectCores, makeCluster, stopCluster],
+           detectCores, stopCluster],
+  ./R/cluster[make_worker_cluster],
   ./R/metrics[NSE]
 )
 
@@ -44,7 +45,7 @@ check <- function(label, ok, detail = "") {
 cat("platform: ", R.version$platform, " (", .Platform$OS.type, ")\n", sep = "")
 cat("cores detected: ", detectCores(), "\n\n", sep = "")
 
-# The same choice ep_dds() and cv-plots.R make.
+# The type make_worker_cluster() should pick unprompted.
 expected <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
 
 forced <- commandArgs(trailingOnly = TRUE)[1]
@@ -57,19 +58,23 @@ if (!is.na(forced)) {
   os_type <- forced
   cat("forcing ", os_type, " (platform default is ", expected, ")\n\n", sep = "")
 } else {
-  os_type <- expected
-  check(paste0("cluster type is ", expected), identical(os_type, expected), os_type)
+  os_type <- NULL
 }
 
 # Two workers is enough to tell a per-worker problem from a shared one, and it
 # fits the smallest runner.
 n_cores <- max(2, min(2, detectCores()))
 
-cat("\n=== worker startup ===\n")
-my_cluster <- makeCluster(n_cores, type = os_type)
+cat("=== worker startup ===\n")
+# Through the same helper the optimizer and cv-plots.R use, so the setup options
+# under test are the ones they actually get.
+my_cluster <- make_worker_cluster(n_cores, type = os_type)
 on.exit(try(stopCluster(my_cluster), silent = TRUE), add = TRUE)
+actual <- if (inherits(my_cluster[[1]], "forknode")) "FORK" else "PSOCK"
 check("cluster started", inherits(my_cluster, "cluster"),
-      paste(n_cores, os_type, "workers"))
+      paste(n_cores, actual, "workers"))
+check(paste0("cluster type is ", if (is.null(os_type)) expected else os_type),
+      identical(actual, if (is.null(os_type)) expected else os_type), actual)
 
 RNGkind("L'Ecuyer-CMRG")
 clusterSetRNGStream(cl = my_cluster, iseed = NULL)

@@ -8,8 +8,9 @@ box::use(
   crayon[blue, green, inverse, red],
   data.table[rbindlist],
   dplyr[bind_rows, filter, group_by, mutate, mutate_if, n, pull, select, slice_max, summarise],
+  ./R/cluster[make_worker_cluster],
   ./R/metrics[KGE, NSE, pbias, rPearson],
-  parallel[clusterCall, clusterEvalQ, clusterExport, clusterSetRNGStream, detectCores, makeCluster, stopCluster],
+  parallel[clusterCall, clusterEvalQ, clusterExport, clusterSetRNGStream, detectCores, stopCluster],
   readr[read_csv],
   stringr[str_detect, str_subset],
   tibble[as_tibble],
@@ -556,8 +557,7 @@ for(basin in basins){
     } else {
       detectCores()-2
     }
-  os_type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
-  my_cluster <- makeCluster(n_cores, type = os_type)
+  my_cluster <- make_worker_cluster(n_cores)
   # Seeding using L'Ecuyer-CMRG, isseed = NULL doc states initializes random process
   RNGkind("L'Ecuyer-CMRG")
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)

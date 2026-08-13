@@ -85,6 +85,7 @@ cv-plots.R              # 3. summarize cross validation
 test-parallel.R         # check the parallel backend on this platform
 R/
   ├── wrappers.R        # model wrappers and the EDDS optimizer
+  ├── cluster.R         # worker cluster setup, shared by the optimizer and cv-plots.R
   ├── obj_fun.R         # objective functions, edit this to add your own
   ├── metrics.R         # goodness-of-fit metrics
   └── test-metrics.R    # optional check of metrics.R against reference implementation (hydroGOF)
@@ -313,9 +314,10 @@ the [hydroGOF](https://cran.r-project.org/package=hydroGOF) package.
 
 The optimizer spreads its objective function evaluations across a cluster of
 worker processes, and cv-plots.R builds a second cluster for its bootstrap. Both
-use FORK on Linux and macOS and PSOCK on Windows. A PSOCK worker starts from an
-empty session, so everything it needs has to be loaded on the worker explicitly,
-and that is where the two backends diverge in practice.
+get their cluster from `R/cluster.R`, which uses FORK on Linux and macOS and
+PSOCK on Windows. A PSOCK worker starts from an empty session, so everything it
+needs has to be loaded on the worker explicitly, and that is where the two
+backends diverge in practice.
 
 `test-parallel.R` checks that layer on its own: the right cluster type for the
 platform, workers that can load the local `box` modules and the compiled

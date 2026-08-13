@@ -9,8 +9,9 @@ box::use(
              rbindlist, nafill],
   tibble[as_tibble],
   tidyr[fill],
-  parallel[makeCluster, clusterSetRNGStream, clusterCall,
+  parallel[clusterSetRNGStream, clusterCall,
              clusterEvalQ, clusterExport, stopCluster],
+  ./cluster[make_worker_cluster],
   ./metrics[NSE, pbias, rPearson, KGE],
   nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
           consuse, fa_nwrfc],
@@ -291,9 +292,8 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
   list2env(list(...), environment())
 
   # Parallel Registration
-  # Use FORK on Linux/Mac for maximum speed, fallback to PSOCK for Windows compatibility
-  os_type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
-  my_cluster <- makeCluster(n_cores, type = os_type)
+  # FORK on Linux/Mac for maximum speed, PSOCK on Windows, see R/cluster.R
+  my_cluster <- make_worker_cluster(n_cores)
   # Seeding using L'Ecuyer-CMRG
   RNGkind("L'Ecuyer-CMRG")
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)
