@@ -9,42 +9,9 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
 
 ## Prerequisites
 
-1. Install [R](http://r-project.org). 
+1. Install [R](http://r-project.org) (Version 4.5 or later). 
 
-2. Install pixi:
-
-    https://pixi.prefix.dev/latest/
-
-3. Install the `nwsrfsr` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
-    
-From R:
-
-```R
-devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='nwsrfs_r')
-```
-
-or from the command line:
-
-```bash
-git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-models.git
-cd nwsrfs-hydro-models
-R CMD INSTALL nwsrfsr
-```
-
-4. Install the `box` R package (used for module imports):
-
-```R
-install.packages("box")
-```
-
-5. Install the remaining R package dependencies. The required packages are listed in the `box::use()` calls at the top of each script. Install any missing packages from CRAN:
-
-```R
-install.packages(c("dplyr", "data.table", "dtplyr", "hydroGOF", "digest",
-                    "lubridate", "readr", "tibble", "ggplot2", "ggthemes",
-                    "crayon", "argparser", "rtop", "stringr", "tidyr",
-                    "vctrs", "plotly", "gridExtra", "rlang", "rmarkdown"))
-```
+2. Install [pixi](https://pixi.prefix.dev/latest/)
 
 **NOTES:**
 
@@ -70,15 +37,17 @@ Input data for the example basins is archived on Zenodo for reproducibility.
 
 ## Set up the auto calibration scripts and the environmennt
 
-    # get repo with auto-calibhration scripts
+```bash
+    # get repo with auto-calibration scripts
     # sample data is in the repo already, but is also archived on zenodo
     # https://doi.org/10.5281/zenodo.18829935
     git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration.git
     cd nwsrfs-hydro-autocalibration
     # set up environment
     pixi install
+    pixi run setup
     # now you are ready to run the workflow below
-
+```
 
 ### Example Workflow 
  We recommend that you complete at least 4 cross validation runs in addition to the full period of record run to evaluate the calibration for any potential issues.
@@ -96,7 +65,7 @@ Input data for the example basins is archived on Zenodo for reproducibility.
     ./postprocess.R --dir runs/2zone --basins WGCM8
 
     # cross-validation
-    ./cv_plots.R --dir runs/2zone --basins WGCM8
+    ./cv-plots.R --dir runs/2zone --basins WGCM8
 
 Any of the example basins could be swapped into this same workflow.
 
