@@ -4,40 +4,25 @@
 This repository contains a version of the Northwest River Forecast Center (NWRFC) autocalibration tool for parameterizing the National Weather Service River Forecast System (NWSRFS) models using an evolving dynamically dimensioned search (EDDS). NWSRFS, originally developed in the late 1970s, remains a core component of the NWS Community Hydrologic Prediction System (CHPS).  This framework supports simultaneous calibration of a suite of NWSRFS models across multiple zones, including: SAC-SMA, SNOW-17, Unit Hydrograph, LAG-K, CHANLOSS, and CONS_USE.  See the [NWSRFS documentation](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) for more detail on each individual model.
 
 **Language:** R  
-**Package Dependency:** [nwsrfs-hydro-models R package](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/nwsrfs_r)  
-
+**Package Dependency:** nwsrfsr ([CRAN](https://cran.r-project.org/web/packages/nwsrfsr/index.html) / [GitHub](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/nwsrfs_r))
 
 ## Prerequisites
 
 1. Install [R](http://r-project.org). 
 
-2. Install pixi:
-
-    https://pixi.prefix.dev/latest/
-
-3. Install the `nwsrfsr` R package which requires a Fortran complier. This package has been tested with [gfortran](https://gcc.gnu.org/wiki/GFortran). See [here](https://cran.r-project.org/bin/macosx/tools/) for an easy option on MacOS.
-    
-From R:
-
-```R
-devtools::install_github('NOAA-NWRFC/nwsrfs-hydro-models',subdir='nwsrfs_r')
-```
-
-or from the command line:
-
-```bash
-git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-models.git
-cd nwsrfs-hydro-models
-R CMD INSTALL nwsrfsr
-```
-
-4. Install the `box` R package (used for module imports):
+2. Install the `box` R package (used for module imports):
 
 ```R
 install.packages("box")
 ```
 
-5. Install the remaining R package dependencies. The required packages are listed in the `box::use()` calls at the top of each script. Install any missing packages from CRAN:
+3. Install the `nwsrfsr` R package.
+
+```R
+install.packages("nwsrfsr")
+```
+
+4. Install the remaining R package dependencies. The required packages are listed in the `box::use()` calls at the top of each script. Install any missing packages from CRAN:
 
 ```R
 install.packages(c("dplyr", "data.table", "dtplyr", "hydroGOF", "digest",
