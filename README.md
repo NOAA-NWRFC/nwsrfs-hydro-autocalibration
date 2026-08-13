@@ -6,29 +6,22 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
 **Language:** R  
 **Package Dependency:** nwsrfsr ([CRAN](https://cran.r-project.org/web/packages/nwsrfsr/index.html) / [GitHub](https://github.com/NOAA-NWRFC/nwsrfs-hydro-models/nwsrfs_r))
 
-## Prerequisites
+## Installation
 
-1. Install [R](http://r-project.org). 
+1. Install [R](http://r-project.org) (Version 4.6.1 or later). 
 
-2. Install the `box` R package (used for module imports):
+2. Set up the auto calibration scripts and the environment
 
-```R
-install.packages("box")
-```
-
-3. Install the `nwsrfsr` R package.
-
-```R
-install.packages("nwsrfsr")
-```
-
-4. Install the remaining R package dependencies. The required packages are listed in the `box::use()` calls at the top of each script. Install any missing packages from CRAN:
-
-```R
-install.packages(c("dplyr", "data.table", "dtplyr", "hydroGOF", "digest",
-                    "lubridate", "readr", "tibble", "ggplot2", "ggthemes",
-                    "crayon", "argparser", "rtop", "stringr", "tidyr",
-                    "vctrs", "plotly", "gridExtra", "rlang", "rmarkdown"))
+```bash
+    # get repo with auto-calibration scripts
+    # sample data is in the repo already, but is also archived on zenodo
+    # https://doi.org/10.5281/zenodo.18829935
+    git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration.git
+    cd nwsrfs-hydro-autocalibration
+    # set up environment
+    Rscript -e "install.packages('renv')"
+    Rscript -e "renv::restore()"
+    # now you are ready to run the workflow below
 ```
 
 **NOTES:**
@@ -53,21 +46,11 @@ There are five basin directories included in this repo that serve as examples wh
 
 Input data for the example basins is archived on Zenodo for reproducibility. 
 
-## Set up the auto calibration scripts and the environmennt
-
-    # get repo with auto-calibhration scripts
-    # sample data is in the repo already, but is also archived on zenodo
-    # https://doi.org/10.5281/zenodo.18829935
-    git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration.git
-    cd nwsrfs-hydro-autocalibration
-    # set up environment
-    pixi install
-    # now you are ready to run the workflow below
-
 
 ### Example Workflow 
  We recommend that you complete at least 4 cross validation runs in addition to the full period of record run to evaluate the calibration for any potential issues.
  
+ ```bash
     # period of record run
     ./run-controller.R --dir runs/2zone --objfun lognse_kge --basin WGCM8
 
@@ -81,7 +64,8 @@ Input data for the example basins is archived on Zenodo for reproducibility.
     ./postprocess.R --dir runs/2zone --basins WGCM8
 
     # cross-validation
-    ./cv_plots.R --dir runs/2zone --basins WGCM8
+    ./cv-plots.R --dir runs/2zone --basins WGCM8
+```
 
 Any of the example basins could be swapped into this same workflow.
 
