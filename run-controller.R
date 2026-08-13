@@ -9,7 +9,7 @@ box::use(
   data.table[as.data.table, data.table, fread, merge.data.table, copy,
              melt.data.table, rbindlist, dcast.data.table, fwrite, setnames, nafill],
   dtplyr[lazy_dt],
-  hydroGOF[gof],
+  ./R/metrics[gof],
   readr[read_csv, cols],
   tibble[tibble, as_tibble],
   ggplot2[...],
@@ -31,9 +31,9 @@ box::use(
 
 # Local modules
 box::use(
-  ./wrappers[model_wrapper, update_params, update_cu_params,
-             inst_to_ave, run_controller_edds],
-  obj_funs = ./obj_fun
+  ./R/wrappers[model_wrapper, update_params, update_cu_params,
+               inst_to_ave, run_controller_edds],
+  obj_funs = ./R/obj_fun
 )
 
 parser <- arg_parser("Auto-calibration run controller", hide.opts = TRUE)

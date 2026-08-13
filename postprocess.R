@@ -10,7 +10,7 @@ box::use(
   data.table[as.data.table, data.table, fread, merge.data.table, copy,
              melt.data.table, rbindlist, dcast.data.table, fwrite, setkey,
              setnames, nafill, setDT],
-  hydroGOF[NSE, pbias],
+  ./R/metrics[NSE, pbias],
   readr[write_csv],
   tibble[as_tibble],
   ggplot2[...],
@@ -35,7 +35,7 @@ box::use(
 
 # Local modules
 box::use(
-  ./wrappers[inst_to_ave, update_params, update_cu_params]
+  ./R/wrappers[inst_to_ave, update_params, update_cu_params]
 )
 
 parser <- arg_parser("Auto-calibration postprocessor", hide.opts = TRUE)

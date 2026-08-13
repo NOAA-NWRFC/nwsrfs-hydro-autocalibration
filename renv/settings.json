@@ -2,7 +2,9 @@
   "bioconductor.enabled": false,
   "bioconductor.version": null,
   "external.libraries": [],
-  "ignored.packages": [],
+  "ignored.packages": [
+    "hydroGOF"
+  ],
   "lockfile.sanitize": true,
   "package.dependency.fields": [
     "Imports",

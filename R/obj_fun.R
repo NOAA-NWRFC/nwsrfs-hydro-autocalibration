@@ -4,7 +4,7 @@
 box::use(
   stats[quantile],
   dplyr[filter],
-  hydroGOF[NSE, pbias, rPearson, KGE, KGElf, KGEnp]
+  ./metrics[NSE, pbias, rPearson, KGE, KGElf, KGEnp]
 )
 
 # Instructions for Creating Objective Functions in the Calibration Program

@@ -8,7 +8,7 @@ box::use(
   crayon[blue, green, inverse, red],
   data.table[rbindlist],
   dplyr[bind_rows, filter, group_by, mutate, mutate_if, n, pull, select, slice_max, summarise],
-  hydroGOF[KGE, NSE, pbias, rPearson],
+  ./R/metrics[KGE, NSE, pbias, rPearson],
   parallel[clusterCall, clusterEvalQ, clusterExport, clusterSetRNGStream, detectCores, makeCluster, stopCluster],
   readr[read_csv],
   stringr[str_detect, str_subset],
@@ -570,9 +570,11 @@ for(basin in basins){
   clusterExport(my_cluster, "master_wd", envir = environment())
   clusterEvalQ(my_cluster, {
     setwd(master_wd)
+    # A worker has no calling module, so box resolves local modules against the
+    # working directory set above rather than against this file's directory.
     box::use(
       dplyr[bind_rows, filter, group_by, mutate, select, summarise],
-      hydroGOF[KGE, NSE, pbias, rPearson],
+      ./R/metrics[KGE, NSE, pbias, rPearson],
       tidyr[pivot_longer]
     )
   })

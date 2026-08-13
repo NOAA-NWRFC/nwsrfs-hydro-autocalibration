@@ -75,6 +75,35 @@ Input data for the example basins is archived on Zenodo for reproducibility.
 
 Any of the example basins could be swapped into this same workflow.
 
+## Repository Layout
+
+The three scripts you run directly live at the top level. Everything they share lives in `R/`.
+
+```
+run-controller.R        # 1. calibrate
+postprocess.R           # 2. simulate and plot the calibrated parameters
+cv-plots.R              # 3. summarize cross validation
+R/
+  ├── wrappers.R        # model wrappers and the EDDS optimizer
+  ├── obj_fun.R         # objective functions, edit this to add your own
+  ├── metrics.R         # goodness-of-fit metrics
+  └── test-metrics.R    # optional check of metrics.R against hydroGOF
+runs/                   # basin input data and calibration output
+```
+
+`R/metrics.R` implements the goodness-of-fit metrics from the published formulas
+cited in its header, so the calibration has no external metrics dependency. The
+[hydroGOF](https://cran.r-project.org/package=hydroGOF) package implements the same
+published metrics and is used as an outside reference to check the implementations.
+It is GPL licensed and this project is Apache 2.0, so no hydroGOF code appears here.
+To run the check, install hydroGOF and run the script; every metric should agree to
+within 1e-9.
+
+```bash
+    Rscript -e "install.packages('hydroGOF')"
+    ./R/test-metrics.R
+```
+
 ## Required Directory Structure
 
 Refer to the example basins in the `runs/` directory for the expected directory structure and file formats.
@@ -163,7 +192,7 @@ Default: `nselognse_NULL`
 | lognse_nse                 | nse.25wlognse.75w_npbias99th   |
 | lognse_kge                 | lognse.4W_nse1112010203m.6W    |
 
-To create a custom objective function, edit the [obj_fun.R](https://github.com/geoffrey-walters/nwrfc-hydro-evolvingDDS/blob/main/obj_fun.R) file and add your own function.
+To create a custom objective function, edit the [R/obj_fun.R](https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration/blob/main/R/obj_fun.R) file and add your own function.
 
 **Notes:**
 1. Do not include `_obj` portion of function name in argument.
@@ -171,7 +200,7 @@ To create a custom objective function, edit the [obj_fun.R](https://github.com/g
 3. Selection of objective function should consider availability of daily and instanteous flow observations.
 4. Errors in custom functions should produce descriptive messages when running `run-controller.R` starting with  
    `"Objective Function had the following error, exiting:"`
-5.   The [obj_fun.R](https://github.com/geoffrey-walters/nwrfc-hydro-evolvingDDS/blob/main/obj_fun.R) file includes additional guidance.
+5.   The [R/obj_fun.R](https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration/blob/main/R/obj_fun.R) file includes additional guidance.
  
 ### 2. `postprocess.R`
 
@@ -287,6 +316,12 @@ If adapting this code, please credit this repository as the original source.
 
 ## Acknowledgment
 The traditional dynamically dimensioned search (DDS) algorithm builds on original code by David Kneis ([david.kneis@tu-dresden.de](mailto:david.kneis@tu-dresden.de)). See: [dds.r GitHub](https://github.com/dkneis/mcu/blob/master/R/dds.r)
+
+The goodness-of-fit metrics in `R/metrics.R` are implemented from the primary
+literature cited in that file. Mauricio Zambrano-Bigiarini's
+[hydroGOF](https://cran.r-project.org/package=hydroGOF) package collects the same
+body of published metrics and served as the reference implementation these were
+validated against.
 
 ## Legal Disclaimer
 
