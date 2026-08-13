@@ -18,21 +18,18 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
     # https://doi.org/10.5281/zenodo.18829935
     git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration.git
     cd nwsrfs-hydro-autocalibration
-    # set up environment
+    # set up the environment
     Rscript -e "renv::restore()"
     # now you are ready to run the workflow below
 ```
 
 `renv::restore()` installs the exact package versions recorded in `renv.lock` into
-a project-local library, leaving your system R library untouched. Packages come
-from [Posit Public Package Manager](https://packagemanager.posit.co), which serves
-precompiled binaries for macOS, Windows, and common Linux distributions, so the
-restore takes a minute or two rather than compiling from source. The first run
-bootstraps `renv` itself; there is no need to install it beforehand.
+a project-local library, leaving your system R library untouched. 
 
 **NOTES:**
 
-The code has been tested only with a 6-hour timestep. Use with other timesteps may require additional configuration and validation.
+- The code has been tested only with a 6-hour timestep. Use with other timesteps may require additional configuration and validation.
+- Packages install from [Posit Public Package Manager](https://packagemanager.posit.co), which serves precompiled binaries for macOS, Windows, and common Linux distributions, so the restore takes a minute or two rather than compiling from source. The first run bootstraps `renv` itself; there is no need to install it beforehand.
 
 ## Example Calibrations
 There are five basin directories included in this repo that serve as examples which utilize all the features of the auto calibration tool.
@@ -77,7 +74,7 @@ Any of the example basins could be swapped into this same workflow.
 
 ## Repository Layout
 
-The three scripts you run directly live at the top level. Everything they share lives in `R/`.
+The three scripts you run directly live at the top level. Shared functions live in `R/`.
 
 ```
 run-controller.R        # 1. calibrate
@@ -87,24 +84,11 @@ R/
   ├── wrappers.R        # model wrappers and the EDDS optimizer
   ├── obj_fun.R         # objective functions, edit this to add your own
   ├── metrics.R         # goodness-of-fit metrics
-  └── test-metrics.R    # optional check of metrics.R against hydroGOF
+  └── test-metrics.R    # optional check of metrics.R against reference implementation (hydroGOF)
 runs/                   # basin input data and calibration output
 ```
 
-`R/metrics.R` implements the goodness-of-fit metrics from the published formulas
-cited in its header, so the calibration has no external metrics dependency. The
-[hydroGOF](https://cran.r-project.org/package=hydroGOF) package implements the same
-published metrics and is used as an outside reference to check the implementations.
-It is GPL licensed and this project is Apache 2.0, so no hydroGOF code appears here.
-To run the check, install hydroGOF and run the script; every metric should agree to
-within 1e-9.
-
-```bash
-    Rscript -e "install.packages('hydroGOF')"
-    ./R/test-metrics.R
-```
-
-## Required Directory Structure
+## Required Calibration Directory Structure
 
 Refer to the example basins in the `runs/` directory for the expected directory structure and file formats.
 
@@ -304,17 +288,30 @@ In the NWRFC autocalibration scheme, mid-month climatological adjustment factors
 [forcing]_std = 10
 [forcing]_shift = 0
 ```
-     
+
+### Goodness of Fit Metrics
+
+`R/metrics.R` implements the goodness-of-fit metrics from the published formulas
+cited in its header, so the calibration has no external metrics dependency. 
+Run the script below to test them against a reference implementation,
+the [hydroGOF](https://cran.r-project.org/package=hydroGOF) package.
+
+
+```bash
+    Rscript -e "install.packages('hydroGOF')"
+    ./R/test-metrics.R
+```
+
 ## Credits and References
 
 Please cite the following work when using this tool:
 
 Walters, G., C. Bracken, B. Gillies, et al. 2026. “A Comprehensive Calibration Framework for the Northwest River Forecast Center.” *JAWRA Journal of the American Water Resources Association* 62, no. 2: e70112. [https://doi.org/10.1111/1752-1688.70112](https://doi.org/10.1111/1752-1688.70112)
 
-
 If adapting this code, please credit this repository as the original source. 
 
-## Acknowledgment
+## Acknowledgments
+
 The traditional dynamically dimensioned search (DDS) algorithm builds on original code by David Kneis ([david.kneis@tu-dresden.de](mailto:david.kneis@tu-dresden.de)). See: [dds.r GitHub](https://github.com/dkneis/mcu/blob/master/R/dds.r)
 
 The goodness-of-fit metrics in `R/metrics.R` are implemented from the primary
