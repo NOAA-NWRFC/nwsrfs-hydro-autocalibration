@@ -1,5 +1,5 @@
 {
-  "bioconductor.enabled": true,
+  "bioconductor.enabled": false,
   "bioconductor.version": null,
   "external.libraries": [],
   "ignored.packages": [],

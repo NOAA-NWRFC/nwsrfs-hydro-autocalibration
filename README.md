@@ -8,7 +8,7 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
 
 ## Installation
 
-1. Install [R](http://r-project.org) (Version 4.6.1 or later). 
+1. Install [R](http://r-project.org) (version 4.6.1 or later). Nothing else is required, no compiler and no system libraries.
 
 2. Set up the auto calibration scripts and the environment
 
@@ -19,10 +19,16 @@ This repository contains a version of the Northwest River Forecast Center (NWRFC
     git clone https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration.git
     cd nwsrfs-hydro-autocalibration
     # set up environment
-    Rscript -e "install.packages('renv')"
     Rscript -e "renv::restore()"
     # now you are ready to run the workflow below
 ```
+
+`renv::restore()` installs the exact package versions recorded in `renv.lock` into
+a project-local library, leaving your system R library untouched. Packages come
+from [Posit Public Package Manager](https://packagemanager.posit.co), which serves
+precompiled binaries for macOS, Windows, and common Linux distributions, so the
+restore takes a minute or two rather than compiling from source. The first run
+bootstraps `renv` itself; there is no need to install it beforehand.
 
 **NOTES:**
 

@@ -1,12 +1,15 @@
-.*
-# runs directory
-runs/*
-
 # R junk
-.Rproj.user
+.Rproj.user/
 .Rhistory
+.RData
+.Ruserdata
+
+# calibration outputs (basin input data is tracked, results are not)
+runs/**/results_*/
+runs/**/cv_plots/
 
 # Mac junk
-.DS_Store# pixi environments
-.pixi/*
-!.pixi/config.toml
+.DS_Store
+
+# leftover pixi environments
+.pixi/
