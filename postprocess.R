@@ -10,24 +10,16 @@ box::use(
   data.table[as.data.table, data.table, fread, merge.data.table, copy,
              melt.data.table, rbindlist, dcast.data.table, fwrite, setkey,
              setnames, nafill, setDT],
-  dtplyr[lazy_dt],
-  hydroGOF[gof, NSE, pbias],
-  digest[digest],
-  lubridate[ymd_hms, yday, ymd_hm, year, `year<-`, years, hours],
-  readr[read_delim, write_csv, read_csv, cols],
-  tibble[tibble, as_tibble, rownames_to_column],
+  ./R/metrics[NSE, pbias],
+  readr[write_csv],
+  tibble[as_tibble],
   ggplot2[...],
-  ggthemes[colorblind_pal],
-  crayon[`%+%`, green, bold, bgGreen, blue, inverse, red, bgCyan],
-  gridExtra[grid.arrange],
+  crayon[bold, blue, inverse],
   grid[unit.pmax, grid.newpage, grid.draw],
-  rmarkdown[render],
-  tools[file_path_sans_ext],
   rlang[set_names],
-  stringr[str_subset, str_detect, str_locate, str_replace, str_replace_all],
-  tidyr[pivot_wider, pivot_longer, fill],
+  stringr[str_subset, str_detect, str_replace, str_replace_all],
+  tidyr[pivot_wider, fill],
   argparser[arg_parser, add_argument, parse_args],
-  plotly[ggplotly],
   vctrs[vec_fill_missing],
   nwsrfsr[sac_snow_uh, sac_snow, sac_snow_states, lagk, sac_snow_uh_lagk,
           forcing_adjust_map_pet_ptps, forcing_adjust_mat, uh, pet_hs,
@@ -43,7 +35,7 @@ box::use(
 
 # Local modules
 box::use(
-  ./wrappers[inst_to_ave, update_params, update_cu_params]
+  ./R/wrappers[inst_to_ave, update_params, update_cu_params]
 )
 
 parser <- arg_parser("Auto-calibration postprocessor", hide.opts = TRUE)
@@ -65,13 +57,10 @@ run_dirs <- args$run
 
 # inside of the basin dir
 results_dir_prefix <- "results"
-# at the same level as the basin dir
-reports_dir_prefix <- ""
 
 # will reside inside of the results dir
 plot_dir <- "plots"
 plot_dir_valid <- "plots_valid"
-report_template <- "report-scripts/report-single-basin.Rmd"
 
 dt_hours <- 6
 tz <- "UTC"
@@ -115,13 +104,6 @@ for (basin in basins) {
     plot_path_valid <- file.path(output_path, plot_dir_valid)
     rc_output_path <- file.path(output_path, "run_settings.txt")
     dir.create(plot_path_valid, showWarnings = FALSE)
-
-    first_underscore <- str_locate(results_dir, "_")[1, "start"]
-    report_num <- substr(results_dir, first_underscore + 1, nchar(results_dir))
-
-    # html report name
-    html_report_name <- gsub("Rmd", "html", gsub("single-basin", paste0(basin, "_", report_num), report_template)) |>
-      basename()
 
     if (!file.exists(rc_output_path)) next
 

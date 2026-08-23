@@ -11,7 +11,7 @@ box::use(
   tidyr[fill],
   parallel[makeCluster, clusterSetRNGStream, clusterCall, 
              clusterEvalQ, clusterExport, stopCluster],
-  hydroGOF[NSE, pbias, rPearson, KGE],
+  ./metrics[NSE, pbias, rPearson, KGE],
   nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
           consuse, fa_nwrfc],
   obj_funs = ./obj_fun
@@ -306,6 +306,8 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
   clusterExport(my_cluster, "master_wd", envir = environment())
   clusterEvalQ(my_cluster, {
     setwd(master_wd)
+    # A worker has no calling module, so box resolves local modules against the
+    # working directory set above rather than against this file's directory.
     box::use(
       stats[runif, rnorm, setNames],
       dplyr[filter, select, summarise, group_by, ungroup, mutate,
@@ -314,10 +316,10 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
                  rbindlist, nafill],
       tibble[as_tibble],
       tidyr[fill],
-      hydroGOF[NSE, pbias, rPearson, KGE],
+      ./R/metrics[NSE, pbias, rPearson, KGE],
       nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
               consuse, fa_nwrfc],
-      obj_funs = ./obj_fun
+      obj_funs = ./R/obj_fun
     )
   })
   

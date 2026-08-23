@@ -4,22 +4,19 @@
 # Please see the LICENSE file for license information
 
 box::use(
-  dplyr[filter, select, summarise, group_by, ungroup, mutate,
-        arrange, lag, lead, full_join, right_join, bind_rows],
+  dplyr[select, summarise, group_by, ungroup, mutate,
+        arrange, full_join, right_join],
   data.table[as.data.table, data.table, fread, merge.data.table, copy,
              melt.data.table, rbindlist, dcast.data.table, fwrite, setnames, nafill],
   dtplyr[lazy_dt],
-  hydroGOF[gof, NSE, rmse, mNSE, rSD, pbias, rPearson, KGE, KGElf, KGEnp],
-  digest[digest],
-  lubridate[ymd_hms],
-  readr[read_delim, read_csv, cols],
-  tibble[tibble, as_tibble, rownames_to_column],
+  ./R/metrics[gof],
+  readr[read_csv, cols],
+  tibble[tibble, as_tibble],
   ggplot2[...],
   ggthemes[colorblind_pal],
-  crayon[`%+%`, green, bold, bgGreen, blue, inverse, red, bgCyan],
-  stringr[str_subset, str_detect],
+  crayon[bold, blue, bgCyan],
+  stringr[str_subset],
   argparser[arg_parser, add_argument, parse_args],
-  tidyr[fill],
   parallel[detectCores],
   vctrs[vec_fill_missing],
   nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, sac_snow, sac_snow_states,
@@ -34,9 +31,9 @@ box::use(
 
 # Local modules
 box::use(
-  ./wrappers[model_wrapper, update_params, update_cu_params,
-             inst_to_ave, run_controller_edds],
-  obj_funs = ./obj_fun
+  ./R/wrappers[model_wrapper, update_params, update_cu_params,
+               inst_to_ave, run_controller_edds],
+  obj_funs = ./R/obj_fun
 )
 
 parser <- arg_parser("Auto-calibration run controller", hide.opts = TRUE)
