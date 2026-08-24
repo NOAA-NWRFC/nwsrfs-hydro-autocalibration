@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The version renv.lock was built against. Package binaries on Posit
+      # Package Manager are keyed on the R minor version, so this keeps all
+      # three platforms installing binaries rather than compiling.
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.6.1'
+
+      - uses: r-lib/actions/setup-renv@v2
+
+      - name: Report the environment
+        shell: bash
+        run: Rscript -e 'sessionInfo(); cat("cores:", parallel::detectCores(), "\n")'
+
+      # The cluster backend on its own. When this fails the message points at
+      # worker startup instead of at whichever calibration happened to run first.
+      - name: Parallel backend, platform default
+        shell: bash
+        run: Rscript test-parallel.R
+
+      # PSOCK is what Windows gets. Running it on Linux and macOS as well means a
+      # bootstrap that only works under FORK gets caught on every platform.
+      - name: Parallel backend, forced PSOCK
+        if: runner.os != 'Windows'
+        shell: bash
+        run: Rscript test-parallel.R PSOCK
+
+      # Iteration counts here are far below a usable calibration. The point is to
+      # drive every parallel path end to end, not to converge on anything.
+      - name: Calibrate 1 zone, period of record
+        shell: bash
+        run: Rscript run-controller.R --dir runs/1zone --basin FSSO3 --objfun kge_NULL --iterations 100 --num_cores 2 --overwrite
+
+      - name: Calibrate 1 zone, cross validation folds
+        shell: bash
+        run: |
+          for fold in 1 2 3 4; do
+            Rscript run-controller.R --dir runs/1zone --basin FSSO3 --objfun kge_NULL \
+              --cvfold "$fold" --iterations 100 --num_cores 2 --overwrite
+          done
+
+      - name: Postprocess 1 zone
+        shell: bash
+        run: Rscript postprocess.R --dir runs/1zone --basins FSSO3
+
+      # cv-plots.R builds its own cluster and bootstrap, separately from the one
+      # in ep_dds, so it needs covering too.
+      - name: Cross validation plots
+        shell: bash
+        run: Rscript cv-plots.R --dir runs/1zone --basins FSSO3
+
+      # SFLN2 has a consumptive use zone and channel loss, SAKW1 routes an
+      # upstream point through lagk. Between them they reach the model paths
+      # FSSO3 does not.
+      - name: Calibrate 2 zone with consumptive use
+        shell: bash
+        run: Rscript run-controller.R --dir runs/2zone --basin SFLN2 --objfun lognse_kge --iterations 100 --num_cores 2 --overwrite
+
+      - name: Calibrate 2 zone with upstream routing
+        shell: bash
+        run: Rscript run-controller.R --dir runs/2zone --basin SAKW1 --objfun lognse_kge --iterations 100 --num_cores 2 --overwrite
+
+      - name: Check the expected outputs exist
+        shell: bash
+        run: |
+          set -e
+          for f in runs/1zone/FSSO3/results_por_01/pars_optimal.csv \
+                   runs/1zone/FSSO3/results_por_01/run_summary.txt \
+                   runs/1zone/FSSO3/results_por_01/optimal_daily.csv \
+                   runs/1zone/FSSO3/results_cv_4_01/pars_optimal.csv \
+                   runs/1zone/cv_plots/FSSO3_CV_Plot.png \
+                   runs/2zone/SFLN2/results_por_01/pars_optimal.csv \
+                   runs/2zone/SAKW1/results_por_01/pars_optimal.csv; do
+            if [ ! -s "$f" ]; then echo "missing or empty: $f"; exit 1; fi
+            echo "ok: $f"
+          done
+
+      # Only the generated output, the basin inputs are already in the repo.
+      - name: Upload run output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runs-${{ matrix.os }}
+          path: |
+            runs/**/results_*/
+            runs/**/cv_plots/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  metrics:
+    name: metrics vs hydroGOF
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.6.1'
+
+      - uses: r-lib/actions/setup-renv@v2
+
+      # hydroGOF is GPL and this project is Apache 2.0, so it is not a dependency
+      # and renv is set to ignore it. It is installed here only to check the
+      # implementations in R/metrics.R against it.
+      - name: Install hydroGOF
+        run: Rscript -e 'renv::install("hydroGOF")'
+
+      - name: Compare metrics against hydroGOF
+        run: Rscript R/test-metrics.R

@@ -4,13 +4,14 @@
 box::use(
   stats[runif, rnorm, setNames],
   dplyr[filter, select, summarise, group_by, ungroup, mutate,
-        lead, right_join, bind_rows],
+        lag, lead, right_join, bind_rows],
   data.table[as.data.table, data.table, merge.data.table, copy,
              rbindlist, nafill],
   tibble[as_tibble],
   tidyr[fill],
-  parallel[makeCluster, clusterSetRNGStream, clusterCall, 
+  parallel[clusterSetRNGStream, clusterCall,
              clusterEvalQ, clusterExport, stopCluster],
+  ./cluster[make_worker_cluster],
   ./metrics[NSE, pbias, rPearson, KGE],
   nwsrfsr[sac_snow_uh, sac_snow_uh_lagk, lagk, chanloss,
           consuse, fa_nwrfc],
@@ -250,11 +251,11 @@ model_wrapper <- function(p, p_names, dt_hours, default_pars, obs_daily, obs_ins
 run_controller_edds <- function(lower, upper, basin, dt_hours, default_pars,
                                 obs_daily, obs_inst, forcing, upflow = NULL,
                                 obj_fun = "rmse", n_zones, cu_zones = character(0),
-                                n_cores, lite = FALSE) {
+                                n_cores, lite = FALSE, t_iter = NULL) {
   # browser()
   # ptm = proc.time()
 
-  t_iter <- ifelse(lite, 2500, 5000)
+  if (is.null(t_iter) || is.na(t_iter)) t_iter <- ifelse(lite, 2500, 5000)
 
   out <- ep_dds(
     fn = model_wrapper,
@@ -291,9 +292,8 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
   list2env(list(...), environment())
 
   # Parallel Registration
-  # Use FORK on Linux/Mac for maximum speed, fallback to PSOCK for Windows compatibility
-  os_type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
-  my_cluster <- makeCluster(n_cores, type = os_type)
+  # FORK on Linux/Mac for maximum speed, PSOCK on Windows, see R/cluster.R
+  my_cluster <- make_worker_cluster(n_cores)
   # Seeding using L'Ecuyer-CMRG
   RNGkind("L'Ecuyer-CMRG")
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)
@@ -311,7 +311,7 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
     box::use(
       stats[runif, rnorm, setNames],
       dplyr[filter, select, summarise, group_by, ungroup, mutate,
-            lead, right_join, bind_rows],
+            lag, lead, right_join, bind_rows],
       data.table[as.data.table, data.table, merge.data.table, copy,
                  rbindlist, nafill],
       tibble[as_tibble],

@@ -1,5 +1,7 @@
 # NWRFC Autocalibration Framework
 
+[![CI](https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration/actions/workflows/ci.yml/badge.svg)](https://github.com/NOAA-NWRFC/nwsrfs-hydro-autocalibration/actions/workflows/ci.yml)
+
 ## Description
 This repository contains a version of the Northwest River Forecast Center (NWRFC) autocalibration tool for parameterizing the National Weather Service River Forecast System (NWSRFS) models using an evolving dynamically dimensioned search (EDDS). NWSRFS, originally developed in the late 1970s, remains a core component of the NWS Community Hydrologic Prediction System (CHPS).  This framework supports simultaneous calibration of a suite of NWSRFS models across multiple zones, including: SAC-SMA, SNOW-17, Unit Hydrograph, LAG-K, CHANLOSS, and CONS_USE.  See the [NWSRFS documentation](https://www.weather.gov/owp/oh_hrl_nwsrfs_users_manual_htm_xrfsdocpdf) for more detail on each individual model.
 
@@ -80,8 +82,10 @@ The three scripts you run directly live at the top level. Shared functions live 
 run-controller.R        # 1. calibrate
 postprocess.R           # 2. simulate and plot the calibrated parameters
 cv-plots.R              # 3. summarize cross validation
+test-parallel.R         # check the parallel backend on this platform
 R/
   ├── wrappers.R        # model wrappers and the EDDS optimizer
+  ├── cluster.R         # worker cluster setup, shared by the optimizer and cv-plots.R
   ├── obj_fun.R         # objective functions, edit this to add your own
   ├── metrics.R         # goodness-of-fit metrics
   └── test-metrics.R    # optional check of metrics.R against reference implementation (hydroGOF)
@@ -122,6 +126,7 @@ The `run-controller.R` script is run to create an optimized parameter file (`par
     usage: run-controller.R [--] [--help] [--por] [--overwrite] [--lite]
           [--dir DIR] [--basin BASIN] [--objfun OBJFUN] [--optimizer
           OPTIMIZER] [--cvfold CVFOLD] [--num_cores NUM_CORES]
+          [--iterations ITERATIONS]
 
     Auto-calibration run controller
 
@@ -140,6 +145,9 @@ The `run-controller.R` script is run to create an optimized parameter file (`par
       -c, --cvfold      CV fold to run (integer 1-4) [default: none]
       -n, --num_cores   Number of cores to allocate for run, FULL uses all
                         available cores -2 [default: FULL]
+      -i, --iterations  Override the optimizer iteration count, for smoke
+                        tests only, a calibration this short is not usable
+                        [default: none]
 
 
 **Example:**
@@ -155,7 +163,7 @@ The `run-controller.R` script is run to create an optimized parameter file (`par
 - Light run (half the number of optimizer iterations): use `--lite`. Note that this will take less real time to run but may result in a lower quality parameter set. 
 - To overwrite last results directory, i.e. don't increment the output directory: use `--overwrite` (ignored if no results exist).
 - To control number of utilized CPU cores: `--cores [#]` or `--cores FULL` (uses all available minus 2).
-- The number of iterations is set to 5000 (or 2500 for a lite run) and is intentionally not user editiable based on extensive testing of how many iterations will produce stable parameter sets. Note that it is still important to manage equally viable parameter sets (i.e. equifinal solutions) by setting appropriate ranges for optimized parameter sets. This is particularly important for multi zone basins. 
+- The number of iterations is 5000, or 2500 for a lite run, chosen from extensive testing of how many iterations produce stable parameter sets. Do not lower it for real work. `--iterations` exists only so the continuous integration tests can drive the full pipeline in seconds, and a run that short will not converge. Note that it is still important to manage equally viable parameter sets (i.e. equifinal solutions) by setting appropriate ranges for optimized parameter sets. This is particularly important for multi zone basins. 
 - Increasing the number of cores used will not speed up the calibration but may make the calibration converge faster or come to a better overall solution. 
 - The optimizer supports calibration with daily average, instantaneous, or both flow types.
 
@@ -301,6 +309,33 @@ the [hydroGOF](https://cran.r-project.org/package=hydroGOF) package.
     Rscript -e "install.packages('hydroGOF')"
     ./R/test-metrics.R
 ```
+
+## Testing
+
+The optimizer spreads its objective function evaluations across a cluster of
+worker processes, and cv-plots.R builds a second cluster for its bootstrap. Both
+get their cluster from `R/cluster.R`, which uses FORK on Linux and macOS and
+PSOCK on Windows. A PSOCK worker starts from an empty session, so everything it
+needs has to be loaded on the worker explicitly, and that is where the two
+backends diverge in practice.
+
+`test-parallel.R` checks that layer on its own: the right cluster type for the
+platform, workers that can load the local `box` modules and the compiled
+`nwsrfsr` package, and a distinct L'Ecuyer-CMRG stream on each worker.
+
+```bash
+    ./test-parallel.R           # the backend this platform would use
+    ./test-parallel.R PSOCK     # force the Windows backend anywhere
+```
+
+The GitHub Actions workflow in `.github/workflows/ci.yml` runs on Linux, macOS,
+and Windows for every push and pull request. On each it runs `test-parallel.R`
+under both backends, then drives the whole pipeline, calibration through
+postprocessing through cross validation plots, on a one zone basin, a basin with
+a consumptive use zone, and a basin routing an upstream point through LAG-K. It
+passes `--iterations` to keep those runs to a few seconds, which is enough to
+exercise every parallel path but nowhere near enough to calibrate anything. A
+separate job checks `R/metrics.R` against hydroGOF.
 
 ## Credits and References
 
