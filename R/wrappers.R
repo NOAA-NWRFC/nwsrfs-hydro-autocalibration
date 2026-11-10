@@ -292,8 +292,15 @@ ep_dds <- function(fn, p_bounds, t_iter = 1000, n_cores = 4, r = 0.2, ...) {
 
   # Parallel Registration
   # Use FORK on Linux/Mac for maximum speed, fallback to PSOCK for Windows compatibility
-  os_type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
-  my_cluster <- makeCluster(n_cores, type = os_type)
+  my_cluster <- if (.Platform$OS.type == "windows") {
+    makeCluster(
+        n_cores,
+        type = "PSOCK",
+        setup_strategy = "sequential"
+    )
+  } else {
+    makeCluster(n_cores, type = "FORK")
+  }
   # Seeding using L'Ecuyer-CMRG
   RNGkind("L'Ecuyer-CMRG")
   clusterSetRNGStream(cl = my_cluster, iseed = NULL)
